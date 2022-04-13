@@ -21,35 +21,7 @@
 
 \section{Introduction}
 
-\paragraph{What I have done yet (chronological order):}
-\begin{itemize}
-	\item The script can save the bkg masked spectrum in a new file, copying the original header too.
-	\item Write a python script that opens a given \texttt{.fits} file, automatically detects the astronomical sources and removes them, providing the spectrum of the background (bkg) only.
-\end{itemize}
-
-\paragraph{What I am doing/going to do soon:}
-\begin{itemize}
-	\item It would be nice to include in the new header more information, e.g.\ when the script was runt, which rows were deleted and so on\dots
-	\item Develop a more solid and qualitative framework wrt what reported below.
-\end{itemize}
-
-
-
-
-\paragraph{Next steps (likely):}
-\begin{itemize}
-	\item Test the script with more frames to check the robustness.
-	\item Decide wether integrate the bkg over the slit position or not.
-	\item ISSUE: if we want to retrieve the sky brightness (insted of the flux only) we have to consider that observations are carried on a portion of the sky delimited by the CCD spatial size (namely the ``height'') and the size of the slit. The problem is that the slit size is quite uncertain and heavily affects the precision of the computation.
-	\item Understand how to disentangle the natural sky emission and the contribution from artificial illumination.
-\end{itemize}
-
-\paragraph{Future major steps (likely):}
-\begin{itemize}
-	\item Decide how to model the various contributions to the bkg spectrum, in particular LED lights have very different types of spectra.
-	\item Fit the data to obtain the weights of the various sources of the bkg.
-	\item Develope a convenient strategy to find correlation between the results of the fit and the observation condition.
-\end{itemize}
+Moved to the GitHub repository  \href{https://github.com/codatomrc/tesi}{\texttt{codatomrc/tesi}}.
 
 \section{Background spectrum extraction}
 
@@ -122,7 +94,7 @@ In this case the spectrum of the background do not seem to present any issue.
 \newpage
 \section{Appendix: Python source code}
 The code I am using.
-\lstinputlisting[language=Python]{../pippo.py}
+\lstinputlisting[language=Python]{../bkg_extractor.py}
 
 \end{document}
 
