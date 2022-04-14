@@ -6,7 +6,7 @@ from astropy import units as u
 from astroquery.simbad import Simbad
 from scipy.signal import find_peaks, peak_widths
 
-hdul = fits.open('pippo.fits')
+hdul = fits.open('Asiago_nightsky/2006/ima_015.fc.bkg.fits')
 hdr = hdul[0].header
 
 print(hdr)

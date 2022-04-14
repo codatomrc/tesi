@@ -5,6 +5,7 @@ import astropy.coordinates as coord
 from astropy import units as u
 from astroquery.simbad import Simbad
 from scipy.signal import find_peaks, peak_widths
+from datetime import datetime
 
 #open a FITS file
 file = 'Asiago_nightsky/2006/ima_015.fc.fits'
@@ -113,14 +114,15 @@ if 1 == True:
     plt.show()
 
 #################
-#sava masked data in a new FITS file
+#save masked data in a new FITS file
 if 1 == False:
-    hdr.set('prova', 'prova')
+    now = datetime.now()
+    now_str = now.strftime("%Y-%m-%d %H:%M:%S")
+    
+    hdr.set('BKGEXTR', now_str, 'Time of bkg extraction')
     new_hdu = fits.PrimaryHDU(ma_spectrum)
     new_hdul = fits.HDUList([new_hdu])
     new_hdul[0].header = hdr
 
     file_new = file[:-5]+'.bkg.fits'
-
     new_hdul.writeto(file_new, overwrite=True)
-    print('saved')

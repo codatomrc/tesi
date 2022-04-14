@@ -44,6 +44,10 @@ Moved to the GitHub repository  \href{https://github.com/codatomrc/tesi}{\texttt
 \end{itemize}
 Note that due to the variety of luminosity profiles of astronomical sources it is not very efficient to develope a qualitative approach to compute the best width. This empirical treatment is good enough (if it will prove to be solid with more data though).
 
+\paragraph{A quantitative approach.} I tried to sketch a qualitative model where I assumed gaussian profiles of the sources. The source ended when its flux was comparable to the amplitude of the bkg noise. The final distance $\Delta$ from the center of the source was
+\[\Delta = \frac{1}{2\sqrt{2\ln 2}}\text{FWHM}\sqrt{\ln(S_\text{max}^2/B)}   \]
+where $S_\text{max}$ was the maximum counts of the source, while $B$ the average level of bkg around the object. Since many extended objects cannot be reproduced by gaussian profiles this estimation may be misleading in many cases. Since the empirical procedure discussed above seems quite solid with current data, implementing a rigorous analytical approach that accounts for different luminosity profiles of the sources, is definitively unecessary.
+
 
 \subsection{Preliminary results}
 Here the results with the two frames available.
