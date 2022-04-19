@@ -27,6 +27,8 @@ Moved to the GitHub repository  \href{https://github.com/codatomrc/tesi}{\texttt
 
 \subsection{Automatic detection}
 \begin{itemize}
+	\item Explore the working directory to find all the raw files automatically.
+	
 	\item Integrate over all the wavelenghts by summing the data in the dispersion direction. In this way a can synthetically see the flux along the spatial direction, regardless the source (i.e.\ continuum or line).
 	\item Detect the peaks the integrated flux using the function \href{https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.find_peaks.html}{\texttt{scipy.signal.find\_peaks}}. This function finds the local maxima of an 1D signal.
 	

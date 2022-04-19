@@ -9,6 +9,7 @@ In the repository are present also the notes that I am writing while doing the w
 ## Roadmap
 
 ### Done (from the latest)
+- The script can automatically process all the fits files in a given directory.
 - A quantitative approach in the source selection is quite complicated due to the possible luminosity profiles of different sources along the slit. It is more practical to use the current empirical approach.
 - In the header of the new file is printed the time when the file was processed. Other information like the extracted rows is unecessary since the shape of the new file is the same of the original one and the masked regions are simply mixels with no numerical values.
 - The script save the bkg masked spectrum in a mew file, mantaining the orginal header too.
