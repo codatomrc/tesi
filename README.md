@@ -9,14 +9,13 @@ In the repository are present also the notes that I am writing while doing the w
 ## Roadmap
 
 ### Done (from the latest)
+- I tested the script to work properly with the new files and changed the settings and the peak detection method. 
 - The script can automatically process all the fits files in a given directory.
 - A quantitative approach in the source selection is quite complicated due to the possible luminosity profiles of different sources along the slit. It is more practical to use the current empirical approach.
-- In the header of the new file is printed the time when the file was processed. Other information like the extracted rows is unecessary since the shape of the new file is the same of the original one and the masked regions are simply mixels with no numerical values.
-- The script save the bkg masked spectrum in a mew file, mantaining the orginal header too.
-- Write a script that opens a FITS file, automatically detects and remove astornomical sources.
+- Write a script that opens a FITS file, automatically detects and remove astornomical sources. The information about bkg spectrum is saved in a new file that preserv original information contained in the header, plus new information about the bkg extraction process.
 
 ### To be done soon (in order of priority)
-- I need more images to test the script and check its robustness.
+- Develop a strategy to detect and remove cosmic rays, better if before the research of the astronomical sources.
 
 ### Next steps (likely):
 - Find some references in the literature about the effects of light pollution and in particular concerning spectroscopy.

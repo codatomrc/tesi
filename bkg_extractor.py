@@ -3,21 +3,32 @@ import matplotlib.pyplot as plt
 from astropy.io import fits
 import astropy.coordinates as coord
 from astropy import units as u
-from scipy.signal import find_peaks, peak_widths
+from scipy.signal import find_peaks, peak_widths, detrend
+from scipy import ndimage
 from datetime import datetime
 import glob
+import os
+from wotan import flatten
+from photutils.segmentation import detect_sources
+
+######################
+savefiles = True
 
 ######################
 
 #browse all the *.fc.fits files in a directory and its subdirectories
-main_path = '.'
+#main_path = './Asiago_nightsky/2006/'
+main_path = './'
 file_ls = glob.glob(main_path+'/**/*.fc.fits', recursive= True)
+names = [os.path.basename(x) for x in file_ls]
 
 ######################
 ######################
 
 #process all the files found
-for file in file_ls:
+for name,file in zip(names,file_ls):
+
+    print('processing file '+name+'\n', end="\r")
 
     #open a FITS file
     hdul = fits.open(file)
@@ -29,19 +40,61 @@ for file in file_ls:
     NAXIS1 = hdr['NAXIS1']
     LAMBDA = np.arange(LAMBDA0, LAMBDA0+NAXIS1*DELTA, DELTA)
     NAXIS2 = hdr['NAXIS2']
+    year = hdr['DATE-OBS'][:4]
+
+    #aperture information from the hdr
+    SLIT = hdr['SLIT'] #microns
+    try:
+        BINX = hdr['BINX']
+        BINY = hdr['BINY']
+        TELSCALE = hdr['TELSCALE'] #arcsec/mm
+        CCDSCALE = hdr['CCDSCALE'] #arcsec/px
+    except KeyError:
+        BINX = hdr['HBIN']
+        BINY = hdr['VBIN']
+        print('Using default CCD and focal scales')
+        
+        TELSCALE = 10.70 #arcsec/mm #TO BE CHECKED!!!
+        CCDSCALE = 0.60 #arcsec/px #TO BE CHECKED!!!
+
+    SLIT_angular = SLIT/1000 * TELSCALE #slit size in arcsec
+    SLIT_px = SLIT_angular / CCDSCALE / BINX #slit size in px
+
+    #PSF = max(LAMBDA)/(1.22*1e10) *206265 # PSF size in arcsec
+    #PSF_px = PSF / CCDSCALE / BINY #PSF size in px
+    #print(PSF_px)
+
+    #gain and ron info from the hdr
+    gain = hdr['GAIN']
+    ron = hdr['RDNOISE']
 
 ######################
     #integrate along the wavelenghts (dispersion direction)
     integr = 0
-    for i in range(2047):
+    if len(LAMBDA) == NAXIS1+1:
+        LAMBDA = LAMBDA[:-1]
+    for i in range(len(LAMBDA)):
         integr = integr + hdul[0].data[:,i]
 
-    #find peaks and measure their widths
-    peaks,properties = find_peaks(integr, prominence=max(integr)/200.)
+    #find the bkg level by detrending the signal
+    x = np.arange(len(integr))
+    flat,trend = flatten(
+        x,
+        integr,
+        method='biweight',
+        window_length=10*SLIT_px,
+        cval = 1, return_trend = True)
+
+    #esimate the bkg level and noise amplitude
+    bkg_est = np.nanmean(trend)
+    noise = np.nanstd(integr-trend)
+
+    #use noise/bkg info to find peaks
+    peaks,properties = find_peaks(integr, prominence=noise, width = 3)
     peak_FWHM = peak_widths(integr, peaks, rel_height=0.5)[0]
 
     #set left and right boundaries of the source region along the slit
-    width_mult = 5
+    width_mult = 3
     left_width = peaks-peak_FWHM*width_mult
     right_width = peaks+peak_FWHM*width_mult
 
@@ -79,20 +132,30 @@ for file in file_ls:
     bkg_sel = ~sign_sel
 
     #plot the integrated flux, show source and bkg regions
-    if 1 == False:
-        plt.title('wavelenght integration')
+    if 1 == True:
+        plt.title(year+'/'+name[:-8]+': wavelenght integration')
         plt.plot(integr, alpha=0.4) #integrated flux
-        plt.scatter(np.arange(len(integr))[bkg_sel],
+        plt.scatter(x[bkg_sel],
                     integr[bkg_sel],
                     s=0.2, c='green') #select bkg
 
+        #esimate the bkg of the filtered regions only
+        bkg_est_filt = np.mean(integr[bkg_sel])
+
+        plt.axhline(y=bkg_est_filt, ls='dashed', c='C1', alpha=0.5)
         for i in range(len(left_width)): #show all the source regions
             plt.axvspan(left_width[i],
                         right_width[i],
                         alpha=0.1, color='red')
-
-        plt.legend(['integrated signal','bkg signal only', f'peak regions ({width_mult}xFWHM)'])
-        plt.show()
+        
+        plt.legend(['integrated signal','bkg signal only', 'bkg level',
+                    f'peak regions ({width_mult}xFWHM)'])
+        
+        if savefiles is True:
+            plt.savefig('./plots/integr/'+year+'_'+name[:-8]+'.png')
+            plt.close()
+        else:
+            plt.show()
 
 ######################
     #integrated spectrum (along the slit)
@@ -101,13 +164,17 @@ for file in file_ls:
     sky = np.sum(spectrum[bkg_sel,:], axis = 0) #integration of bkg rows only
 
     #plot the spatially integrated spectrum of the bkg
-    if 1 == False:
-        plt.title('spatially integrated background spectrum')
+    if 1 == True:
+        plt.title(year+'/'+name[:-8]+': bkg spectrum')
         plt.plot(LAMBDA, total, label='full frame', color='gray', alpha=0.3)
         plt.plot(LAMBDA, sky, label='sky only')
         plt.ylim(min(sky),1.2*max(sky))
         plt.legend()
-        plt.show()
+        if savefiles is True:
+            plt.savefig('./plots/sky_spec/'+year+'_'+name[:-8]+'.png')
+            plt.close()
+        else:
+            plt.show()
 
 ######################
     #extract only the bkg rows
@@ -126,7 +193,7 @@ for file in file_ls:
 
 ######################
     #save masked data in a new FITS file
-    if 1 == False:
+    if 1 == True:
         now = datetime.now()
         now_str = now.strftime("%Y-%m-%d %H:%M:%S")
         

@@ -30,17 +30,20 @@ Moved to the GitHub repository  \href{https://github.com/codatomrc/tesi}{\texttt
 	\item Explore the working directory to find all the raw files automatically.
 	
 	\item Integrate over all the wavelenghts by summing the data in the dispersion direction. In this way a can synthetically see the flux along the spatial direction, regardless the source (i.e.\ continuum or line).
+	
+	\item Detect the amplitude of the noise by comparing the luminosity profile with a de-trended one. For detrending I used a biweighted algorithm with a windows size of 10 times the slit size. I used the function \href{https://github.com/hippke/wotan}{\texttt{wotam.flatten}}.
+	
+	I also estimated the average bkg level as the average value of the de-trended profile. The choice of a large window allows to smear out the signal of the peaks providing a good estimation of the actual bkg level.
+	
 	\item Detect the peaks the integrated flux using the function \href{https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.find_peaks.html}{\texttt{scipy.signal.find\_peaks}}. This function finds the local maxima of an 1D signal.
 	
-	On the current data it was convenient to filter the detected peak to have a \href{https://en.wikipedia.org/wiki/Topographic_prominence}{prominence} (in this case $\sim$ height from the background) higher than 0.5\% the highest peak on the signal. This helped to neglect local maxima due to spatial noise fluctuations.
+		
+	On the current data it was convenient to filter the detected peak to have a \href{https://en.wikipedia.org/wiki/Topographic_prominence}{prominence} equal to the estimated bkg noise amplitude. I also restricted the research to peaks with a witdth larger than 3\,px which prevents cosmic rays to be recorded as astronomical sources. On the current configuration cosmic rays produes traces that spans about 3-5\,px on the dispersion direction while 1-2\,px on the spatial direction.
 	
 	\item Measure the width of each peak with \href{https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.peak_widths.html#scipy.signal.peak_widths}{\texttt{scipy.signal.peak\_widths}}. This function is designed to work with noisy signal and several maxima and minima, instead of just some maxima above a flat background. I set the option \texttt{rel\_height=0.5} to measure the FWHM of each peack instead of the width at the base, which turned to be not very solid for the data we had.
 	
-	\item Mask the regions around the peaks. After some testing, the best strated (with the data available) is to remove a region of width $ 5\times$ FWHM around each peak.
+	\item Mask the regions around the peaks. After some testing, the best strated (with the data available) is to remove a region of width $ 3\times$ FWHM around each peak. Such whide span is necessary since many sources present a luminosity profile with a bright core and extended wings.
 	
-	Note if peak profile fits a gaussian appriximation (i.e.\ sharp peaks and/or high SNR and/ord profile intrisically gaussian) then 5 FWHM correspond span to $5.89\sigma$ from the maximum, when the flux is dimmed by a factor \num{e-8}.
-	
-	Such an high span is required as many sources have not gaussian profiles and in particular might present bright wings wrt the gaussian prediction (e.g.\ galaxies have a bright nearly gaussian core plus faint but extended spiral arms).
 	
 	\item Extract the data of the background as those outside the region of the peaks. These are the areas that will be used for the analysis.
 \end{itemize}
@@ -53,6 +56,8 @@ where $S_\text{max}$ was the maximum counts of the source, while $B$ the average
 
 \subsection{Preliminary results}
 Here the results with the two frames available.
+
+\paragraph{All the data.} Wavelenght integrated profiles and bkg-removed spectra obtained with the current configuration are available in the directories \texttt{plots/integr} and \texttt{plots/sky\_spec} resepctively. The masked spectra are saved in the same directories of the original files with synthax \texttt{filename.fc.bkg.fits}.
 
 \paragraph{NGC2392 (2006/ima\_010).} The Eskimo Nebula. There is a sharp peak with strong wings. Probably another very faint source is present in the field. The script does recognize both the signals and removes them.
 
@@ -91,6 +96,9 @@ In the removal they comes out negative fluxes in the bluer hand of the spectrum.
 In this case the spectrum of the background do not seem to present any issue.
 
 \subsection{Comments on the first results}
+
+\paragraph{Cosmic rays removal.} Many of the peaks in the integrated luminosity profiles have a widths lower than 4\,px, i.e.\ are very likely to be cosmic rays. These traces must be actually identified and removed from the final masked file with the bkg spectrum.
+
 \paragraph{Wavelenght limitations.} It would be convenient to set a wavelenght treshold for the analized data. Wavelenghts outside the spectrograph+telescope working range may led to biased measurements.
 
 \paragraph{Frame limitations(?)} I wonder wether the whole CCD area is suitable for collecting data or it would be better/necessary to neglect some specific regions, both in the spatial and dispersion directions.
