@@ -26,82 +26,84 @@ Moved to the GitHub repository  \href{https://github.com/codatomrc/tesi}{\texttt
 \section{Background spectrum extraction}
 
 \subsection{Automatic detection}
+The script I am writing works as follows.
 \begin{itemize}
-	\item Explore the working directory to find all the raw files automatically.
+	\item Automatically explores a directory and find all the raw files, marked as \texttt{filename.fc.fits}. All the files are then processed one by one.
 	
-	\item Integrate over all the wavelenghts by summing the data in the dispersion direction. In this way a can synthetically see the flux along the spatial direction, regardless the source (i.e.\ continuum or line).
+	\item Far each frame relevant information is extracted from the header (hdr). In particular the script requires
+	\begin{itemize}
+		\item information about the wavelength of each pixel (initial wavelength, increment of each pixel and width of the detector and horizontal binning factor),
+		\item slit width and length (thus the detector height an vertical binning factor, aside the CCD scale),
+		\item year of observation
+	\end{itemize}
+	\item For each frame a preliminary integration over all the wavelenghts is performed by summing the data in the file along the dispersion direction. This is an efficient way of detecting astronomical sources, that are spatially limited, against the background, supposed uniform along the slit.
 	
-	\item Detect the amplitude of the noise by comparing the luminosity profile with a de-trended one. For detrending I used a biweighted algorithm with a windows size of 10 times the slit size. I used the function \href{https://github.com/hippke/wotan}{\texttt{wotam.flatten}}.
+	\item I estimate the noise level and amplitude for the slit luminosity profile by comparing the original profile with a detrended version.
+	I used a biweighted detrending algorithm with a windowing of 10 times the slit width, using the function \href{https://github.com/hippke/wotan}{\texttt{wotam.flatten}}
+	The choice of such a wide widow (about 40\,px for a typical \SI{100}{\micro\metre} slit size) allows us to have a good compromise to estimate both noise level and amplitude:
+	\begin{itemize}
+		\item bkg level is the average value of the detrended profile. This is a good estimation of the real value since I used a large window and the light of the bright peaks is smeared on a wide area, making its contribution less relevant.
+		\item noise amplitude is the standard deviation of the original profile wrt the detrended one.
+	\end{itemize}
+	Note choosing a wider window improves the estimation of the bkg level (even if it cannot actually ever converge to the real value) but increases the estimated noise amplitude.
 	
-	I also estimated the average bkg level as the average value of the de-trended profile. The choice of a large window allows to smear out the signal of the peaks providing a good estimation of the actual bkg level.
+	\item Cosmic rays and excessive noise are removed. In particular in the bluer part of the spectrum, due to the low sensitivity of the detector, after the flux calibration the noise is extremely high, seriously affecting the quality of the measurements. For example see the image below
+	\begin{figure}[h!]
+		\centering
+		\includegraphics[width=.35\textwidth, angle=90]{10_det}
+	\end{figure}
+	I removed these features by scanning each column of the frame looking for bright sharp peaks. Some good settings to remove both cosmic rays and noise is to find peaks very thin, with a width less than 3\,px and an height of more than 5 times the average level of the bkg (i.e.\ the value estimated from the luminosity profile, divided by the number of pixels along the horizontal direction) \textcolor{red}{bisognerebbe stimare la dimensione apparente dei raggi cosmici e confrontarla con la scala sul CCD per essere sicuri che funzioni con tutte le immagini}.
 	
-	\item Detect the peaks the integrated flux using the function \href{https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.find_peaks.html}{\texttt{scipy.signal.find\_peaks}}. This function finds the local maxima of an 1D signal.
+	The peaks were identified with the function \href{https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.find_peaks.html}{\texttt{scipy.signal.find\_peaks}} while their FWHM was estimated with \href{https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.peak_widths.html#scipy.signal.peak_widths}{\texttt{scipy.signal.peak\_widths}}. To be sure all the cosmic ray trace or the noise fluctuation was contained in the detected width I added a further 1\,px on both directions along the columns.
 	
-		
-	On the current data it was convenient to filter the detected peak to have a \href{https://en.wikipedia.org/wiki/Topographic_prominence}{prominence} equal to the estimated bkg noise amplitude. I also restricted the research to peaks with a witdth larger than 3\,px which prevents cosmic rays to be recorded as astronomical sources. On the current configuration cosmic rays produes traces that spans about 3-5\,px on the dispersion direction while 1-2\,px on the spatial direction.
+	\item On the cleaned frame I take again luminosity profile along the slit (i.e.\ integration on the wavelengths) to search for the astronomical sources. I used \texttt{scipy.signal.find\_peaks} to find the position of the sources. I selected only those features with a width larger than 3\,px (to be sure not to include unremoved cosmic rays) and with a \href{https://en.wikipedia.org/wiki/Topographic_prominence}{prominence} equal to the estimated noise amplitude.
 	
-	\item Measure the width of each peak with \href{https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.peak_widths.html#scipy.signal.peak_widths}{\texttt{scipy.signal.peak\_widths}}. This function is designed to work with noisy signal and several maxima and minima, instead of just some maxima above a flat background. I set the option \texttt{rel\_height=0.5} to measure the FWHM of each peack instead of the width at the base, which turned to be not very solid for the data we had.
+	\item I computed the width of the sources with \texttt{scipy.signal.peak\_widths}. In particular I considered the FWHM which proved to be more solid than the total width. Since many kinds of astronomical sources have a central core and bright wings, I decided to remove a that span $3\times\text{FWHM}$ wrt the center of the peak to take into account such wings.	
 	
-	\item Mask the regions around the peaks. After some testing, the best strated (with the data available) is to remove a region of width $ 3\times$ FWHM around each peak. Such whide span is necessary since many sources present a luminosity profile with a bright core and extended wings.
-	
-	
-	\item Extract the data of the background as those outside the region of the peaks. These are the areas that will be used for the analysis.
+	\item At the end the script produces:
+	\begin{itemize}
+		\item A plot of the luminosity profile along the slit (the one from the original frame, and after the cosmic ray removal) plus the masked source regions.
+		\item The bkg spectrum from the selected rows only, integrated along the spatial direction (plus the same for the full cleaned frame as a comparison).
+		\item A new file where cosmic rays, the UV noise and the astronomical sources are removed. The information in the hdr are preserved and the data when the file was produced is added.
+	\end{itemize}
 \end{itemize}
-Note that due to the variety of luminosity profiles of astronomical sources it is not very efficient to develope a qualitative approach to compute the best width. This empirical treatment is good enough (if it will prove to be solid with more data though).
+
 
 \paragraph{A quantitative approach.} I tried to sketch a qualitative model where I assumed gaussian profiles of the sources. The source ended when its flux was comparable to the amplitude of the bkg noise. The final distance $\Delta$ from the center of the source was
 \[\Delta = \frac{1}{2\sqrt{2\ln 2}}\text{FWHM}\sqrt{\ln(S_\text{max}^2/B)}   \]
 where $S_\text{max}$ was the maximum counts of the source, while $B$ the average level of bkg around the object. Since many extended objects cannot be reproduced by gaussian profiles this estimation may be misleading in many cases. Since the empirical procedure discussed above seems quite solid with current data, implementing a rigorous analytical approach that accounts for different luminosity profiles of the sources, is definitively unecessary.
 
-
 \subsection{Preliminary results}
-Here the results with the two frames available.
+Here I report some relevant results I obtained.
 
-\paragraph{All the data.} Wavelenght integrated profiles and bkg-removed spectra obtained with the current configuration are available in the directories \texttt{plots/integr} and \texttt{plots/sky\_spec} resepctively. The masked spectra are saved in the same directories of the original files with synthax \texttt{filename.fc.bkg.fits}.
+\paragraph{All the data.} Wavelength integrated profiles and bkg-removed spectra obtained with the current configuration are available in the directories \texttt{plots/integr} and \texttt{plots/sky\_spec} respectively. The masked spectra are saved in the same directories of the original files with syntax \texttt{filename.fc.bkg.fits}.
 
-\paragraph{NGC2392 (2006/ima\_010).} The Eskimo Nebula. There is a sharp peak with strong wings. Probably another very faint source is present in the field. The script does recognize both the signals and removes them.
-
+\paragraph{IMA06889 (2009).} A extremely high signal is present in the bluer part of the spectrum. Anyway the wavelengths are extremely low (below \SI{3000}{\angstrom}) and these are not very relevant.
 \begin{figure}[h!]
 	\begin{minipage}{.49\textwidth}
 		\centering
-		\includegraphics[width=\textwidth]{10_1}
+		\includegraphics[width=\textwidth]{2009_IMA06889}
 	\end{minipage}
 \hfill
 	\begin{minipage}{.49\textwidth}
 	\centering
-	\includegraphics[width=\textwidth]{10_2}
+	\includegraphics[width=\textwidth]{IMA06889}
 \end{minipage}
 \end{figure}
+We realize that the original profile along the slit was severely noisy and after the cleaning there is still some residual noise that makes the profile very irregular.
+
+\paragraph{IMA91077 (2020) and others.} In this case we notice that the profile of the bkg is not uniform at all but seems to present a systematic trend. I need to investigate if it is intrinsic (e.g.\ due to a diffuse component) or the result of some calibration or instrumental issue.
 \begin{figure}[h!]
-	\centering
-	\includegraphics[width=.35\textwidth, angle=90]{10_det}
-\end{figure}
-We integrate over all the position along the slit where we no astronomical sources/signals are present. Then we plot it against the wavelenght to obtain the spectrum of the background (atmospheric emission + light pollution).
-
-In the removal they comes out negative fluxes in the bluer hand of the spectrum. We realize that the wavelenght range in this frame begins at $\sim\SI{3344}{\angstrom}$ which considerable as UV radiation. It is not so surprising to find inaccurate results at those extreme wavelenghts.
-
-
-\paragraph{Ark564 (2006/ima\_015).} In this case the sources along the slit seems to be several but the script seems to be able to manage all of them.
-\begin{figure}[h!]
-	\begin{minipage}{.49\textwidth}
 		\centering
-		\includegraphics[width=\textwidth]{15_1}
-	\end{minipage}
-	\hfill
-	\begin{minipage}{.49\textwidth}
-		\centering
-		\includegraphics[width=\textwidth]{15_2}
-	\end{minipage}
+		\includegraphics[width=.49\textwidth]{2020_IMA91077}
 \end{figure}
-In this case the spectrum of the background do not seem to present any issue.
+Similar features are presents in other frames like IMA61434 (2017), IMA84983, IMA85634, IMA91077 (2020), IMA95725 and IMA97134 (2021).
 
 \subsection{Comments on the first results}
 
-\paragraph{Cosmic rays removal.} Many of the peaks in the integrated luminosity profiles have a widths lower than 4\,px, i.e.\ are very likely to be cosmic rays. These traces must be actually identified and removed from the final masked file with the bkg spectrum.
+\paragraph{Wavelength limitations.} It would be convenient to set a wavelength threshold for the analyzed data. Wavelengths outside the spectrograph+telescope working range may led to biased measurements. Due to the strong noise in the bluer part of the spectrum, many of such portion of the images is automatically masked, but probably some of the inconsistent results are due to such noise.
 
-\paragraph{Wavelenght limitations.} It would be convenient to set a wavelenght treshold for the analized data. Wavelenghts outside the spectrograph+telescope working range may led to biased measurements.
-
-\paragraph{Frame limitations(?)} I wonder wether the whole CCD area is suitable for collecting data or it would be better/necessary to neglect some specific regions, both in the spatial and dispersion directions.
+\paragraph{Frame limitations(?)} I wonder whether the whole CCD area is suitable for collecting data or it would be better/necessary to neglect some specific regions, both in the spatial and dispersion directions.
 
 \textcolor{red}{What about the lines ``\texttt{CCDSEC}'' and ``\texttt{BIASSEC}'' in the header of the frames?}
 
