@@ -21,7 +21,7 @@ In the repository are present also the notes that I am writing while doing the w
 - Find some references in the literature about the effects of light pollution and in particular concerning spectroscopy.
 - Test the script with more frames to check the robustness.
 - Decide wether integrate the bkg over the slit position or not.
-- ISSUE: if we want to retrieve the sky brightness (insted of the flux only) we have to consider that observations are carried on a portion of the sky delimited by the CCD spatial size (namely the \height")
+- ISSUE: if we want to retrieve the sky brightness (insted of the flux only) we have to consider that observations are carried on a portion of the sky delimited by the CCD spatial size (namely the "height")
 and the size of the slit. The problem is that the slit size is quite uncertain and heavily affects the precision of the computation.
 - Understand how to disentangle the natural sky emission and the contribution from artificial illumination.
 

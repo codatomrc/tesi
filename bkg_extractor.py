@@ -1,4 +1,5 @@
 import numpy as np
+import numpy.ma as ma
 import matplotlib.pyplot as plt
 from astropy.io import fits
 import astropy.coordinates as coord
@@ -9,12 +10,20 @@ from datetime import datetime
 import glob
 import os
 from wotan import flatten
-from photutils.segmentation import detect_sources
 
 ######################
 savefiles = True
 
 ######################
+
+#wavelenght integration function
+def integrate(image, LAMBDA):
+    integr = 0
+    if len(LAMBDA) == NAXIS1+1:
+        LAMBDA = LAMBDA[:-1]
+    for i in range(len(LAMBDA)):
+        integr = integr + image[:,i]
+    return integr
 
 #browse all the *.fc.fits files in a directory and its subdirectories
 #main_path = './Asiago_nightsky/2006/'
@@ -69,27 +78,56 @@ for name,file in zip(names,file_ls):
     ron = hdr['RDNOISE']
 
 ######################
-    #integrate along the wavelenghts (dispersion direction)
-    integr = 0
+    #bkg level estiamtion
+    raw_data = hdul[0].data
+    
     if len(LAMBDA) == NAXIS1+1:
         LAMBDA = LAMBDA[:-1]
-    for i in range(len(LAMBDA)):
-        integr = integr + hdul[0].data[:,i]
-
-    #find the bkg level by detrending the signal
-    x = np.arange(len(integr))
+    raw_integr = np.sum(raw_data, axis = 1)       
+    x = np.arange(len(raw_integr))
+    
+    #signal detrend
     flat,trend = flatten(
         x,
-        integr,
+        raw_integr,
         method='biweight',
         window_length=10*SLIT_px,
         cval = 1, return_trend = True)
 
     #esimate the bkg level and noise amplitude
     bkg_est = np.nanmean(trend)
-    noise = np.nanstd(integr-trend)
+    noise = np.nanstd(raw_integr-trend)
 
+######################
+    #remove cosmic rays and UV noise
+    data = np.copy(raw_data)
+
+    pad = 1 # number of px outside cosmic rays
+    for cr_col,col in enumerate(data.T):
+        cr_line,_ = find_peaks(col,
+                               prominence = bkg_est/len(raw_data[1])*5,
+                               width = (0,3))
+
+        cr_widths = peak_widths(col, cr_line, rel_height=0.5)[0]
+
+        #set left and right boundaries of the source region along the slit
+        width_mult = 3
+        left_width = cr_line-cr_widths - pad
+        right_width = cr_line+cr_widths + pad
+
+        cr_sel = np.zeros(np.shape(col), dtype=bool)
+        for i in range(np.shape(col)[0]):
+            for peak,width in zip(cr_line,cr_widths):
+                if abs(i-peak) < width*width_mult:
+                    cr_sel[i] = True
+
+        data[cr_sel, cr_col] = np.nan
+
+######################
     #use noise/bkg info to find peaks
+
+    integr = np.nansum(data, axis = 1)
+    
     peaks,properties = find_peaks(integr, prominence=noise, width = 3)
     peak_FWHM = peak_widths(integr, peaks, rel_height=0.5)[0]
 
@@ -97,6 +135,8 @@ for name,file in zip(names,file_ls):
     width_mult = 3
     left_width = peaks-peak_FWHM*width_mult
     right_width = peaks+peak_FWHM*width_mult
+
+
 
 ######################
     #remove overlapping ranges
@@ -117,10 +157,13 @@ for name,file in zip(names,file_ls):
     left_width, right_width = np.reshape(widths, (int(len(widths)/2),2)).T
 
     #remove values beyond the CCD size limits
-    if left_width[0] < 0:
-        left_width[0] = 0
-    if right_width[-1] > NAXIS2:
-        right_width[-1] = NAXIS2
+    try:
+        if left_width[0] < 0:
+            left_width[0] = 0
+        if right_width[-1] > NAXIS2:
+            right_width[-1] = NAXIS2
+    except IndexError:
+        print('no sources were detected!')
 
 ######################
     #mask the source/background regions
@@ -134,6 +177,7 @@ for name,file in zip(names,file_ls):
     #plot the integrated flux, show source and bkg regions
     if 1 == True:
         plt.title(year+'/'+name[:-8]+': wavelenght integration')
+        plt.plot(raw_integr, alpha=0.2, ls='dashed', c='C1')
         plt.plot(integr, alpha=0.4) #integrated flux
         plt.scatter(x[bkg_sel],
                     integr[bkg_sel],
@@ -142,13 +186,15 @@ for name,file in zip(names,file_ls):
         #esimate the bkg of the filtered regions only
         bkg_est_filt = np.mean(integr[bkg_sel])
 
-        plt.axhline(y=bkg_est_filt, ls='dashed', c='C1', alpha=0.5)
+        plt.axhline(y=bkg_est_filt, ls='dashed', c='grey', alpha=0.5)
         for i in range(len(left_width)): #show all the source regions
             plt.axvspan(left_width[i],
                         right_width[i],
                         alpha=0.1, color='red')
-        
-        plt.legend(['integrated signal','bkg signal only', 'bkg level',
+        #plt settings
+        plt.ylim(min(integr)*0.9, max(integr)*1.1)
+        plt.legend(['raw signal','cleaned signal',
+                    'bkg signal only', 'bkg level',
                     f'peak regions ({width_mult}xFWHM)'])
         
         if savefiles is True:
@@ -159,9 +205,8 @@ for name,file in zip(names,file_ls):
 
 ######################
     #integrated spectrum (along the slit)
-    spectrum = hdul[0].data #original data
-    total = np.sum(spectrum, axis = 0) #integration along the slit
-    sky = np.sum(spectrum[bkg_sel,:], axis = 0) #integration of bkg rows only
+    total = np.nansum(data, axis = 0) #integration along the slit
+    sky = np.nansum(data[bkg_sel,:], axis = 0) #integration of bkg rows only
 
     #plot the spatially integrated spectrum of the bkg
     if 1 == True:
@@ -179,16 +224,16 @@ for name,file in zip(names,file_ls):
 ######################
     #extract only the bkg rows
         
-    ma_spectrum = spectrum #set masked data
+    ma_data = data #set masked data
     for i,row in enumerate(bkg_sel):
         #cancel data from the source rows
         if row == 0:
-            ma_spectrum[i,:] = np.nan 
+            ma_data[i,:] = np.nan 
 
     #plot as image the bkr rows only
     if 1 == False:
         plt.title('image (sky selection only)')
-        plt.imshow(ma_spectrum, extent = [LAMBDA[0], LAMBDA[-1], NAXIS2, 0])
+        plt.imshow(ma_data, extent = [LAMBDA[0], LAMBDA[-1], NAXIS2, 0])
         plt.show()
 
 ######################
@@ -198,7 +243,7 @@ for name,file in zip(names,file_ls):
         now_str = now.strftime("%Y-%m-%d %H:%M:%S")
         
         hdr.set('BKGEXTR', now_str, 'Time of bkg extraction')
-        new_hdu = fits.PrimaryHDU(ma_spectrum)
+        new_hdu = fits.PrimaryHDU(ma_data)
         new_hdul = fits.HDUList([new_hdu])
         new_hdul[0].header = hdr
 
