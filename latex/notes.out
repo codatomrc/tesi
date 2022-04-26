@@ -3,4 +3,7 @@
 \BOOKMARK [2][-]{subsection.2.1}{Automatic detection}{section.2}% 3
 \BOOKMARK [2][-]{subsection.2.2}{Preliminary results}{section.2}% 4
 \BOOKMARK [2][-]{subsection.2.3}{Comments on the first results}{section.2}% 5
-\BOOKMARK [1][-]{section.3}{Appendix: Python source code}{}% 6
+\BOOKMARK [1][-]{section.3}{Bkg analysis}{}% 6
+\BOOKMARK [1][-]{section.4}{Appendix: Python codes}{}% 7
+\BOOKMARK [2][-]{subsection.4.1}{Bkg extraction code}{section.4}% 8
+\BOOKMARK [2][-]{subsection.4.2}{Bkg analysis code}{section.4}% 9

@@ -1,26 +1,26 @@
 # Master thesis Marco Codato
-
-## Introduction and overview
 In this repository I am going to upload daily the work on my thesis.
 
+## Introduction and overview
 I decided to manage data with Python. Since the frames are calibrated and pre-reduced, it is not necessary to use softwares like IRAF.
 In the repository are present also the notes that I am writing while doing the work and can be used as a detailed report of the work and an explaination of what you can find in the script source code.
+
+I am going to update my work daily during the week.
 
 ## Roadmap
 
 ### Done (from the latest)
-- I tested the script to work properly with the new files and changed the settings and the peak detection method. 
-- The script can automatically process all the fits files in a given directory.
-- A quantitative approach in the source selection is quite complicated due to the possible luminosity profiles of different sources along the slit. It is more practical to use the current empirical approach.
-- Write a script that opens a FITS file, automatically detects and remove astornomical sources. The information about bkg spectrum is saved in a new file that preserv original information contained in the header, plus new information about the bkg extraction process.
+- I am starting developing a new script that reads the bkg files generated with the first one.
+- **Bkg extraction**. I wrote a script that automatically read and process all the files in a directory.
+For each file a preliminary cosmic ray and noise clening is performed. After that all the astronomical sources are detected by looking at the luminosity profile along the slit (wavelength integration).
+The remaining areas are saved in a new file, accompained with new information about the procedure in the header.
 
 ### To be done soon (in order of priority)
-- Develop a strategy to detect and remove cosmic rays, better if before the research of the astronomical sources.
+- Develop a strategy to analyze the different spectral features.
+- Tune the software using more qualitative criteria
 
 ### Next steps (likely):
 - Find some references in the literature about the effects of light pollution and in particular concerning spectroscopy.
-- Test the script with more frames to check the robustness.
-- Decide wether integrate the bkg over the slit position or not.
 - ISSUE: if we want to retrieve the sky brightness (insted of the flux only) we have to consider that observations are carried on a portion of the sky delimited by the CCD spatial size (namely the "height")
 and the size of the slit. The problem is that the slit size is quite uncertain and heavily affects the precision of the computation.
 - Understand how to disentangle the natural sky emission and the contribution from artificial illumination.
@@ -29,3 +29,4 @@ and the size of the slit. The problem is that the slit size is quite uncertain a
 - Decide how to model the various contributions to the bkg spectrum, in particular LED lights have very different types of spectra.
 - Fit the data to obtain the weights of the various sources of the bkg. 
 - Develope a convenient strategy to find correlation between the results of the fit and the observation conditions.
+- Somehow include error propagation in the whole analysis.
