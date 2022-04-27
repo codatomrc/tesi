@@ -9,7 +9,8 @@ from scipy import ndimage
 from datetime import datetime
 import glob
 import os
-from wotan import flatten
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
 
 ######################
 #OPTIONS
@@ -23,12 +24,18 @@ show_ima = False
 ######################
 
 #browse all the *.fc.fits files in a directory and its subdirectories
-main_path = './Asiago_nightsky/2006/'
-#main_path = './'
+main_path = './Asiago_nightsky/2011/'
+main_path = './'
 file_ls = glob.glob(main_path+'/**/*.fc.bkg.fits', recursive= True)
 names = [os.path.basename(x) for x in file_ls]
 
+LAMBDA_bins = np.arange(3500, 8500, 100)
+
+df = np.zeros((len(names),len(LAMBDA_bins[:-1])))
+
+
 #process all the files found
+file_id = 0
 for name,file in zip(names,file_ls):
 
     #load the frame
@@ -41,8 +48,23 @@ for name,file in zip(names,file_ls):
     LAMBDA_lim = hdr['UVLIM']
 
     #the (eventually) UV-limited wavelengths array
-    LAMBDA = np.arange(LAMBDA_lim, max(LAMBDA_lim, LAMBDA0)+NAXIS1*DELTA, DELTA)
-    
-    '''
-    HERE IT GOES THE CODE TO ANALYZE THE FEATURES OF BKG SPECTRA
-    '''
+    LAMBDA_start = max(LAMBDA_lim, LAMBDA0)
+    LAMBDA = np.arange(LAMBDA_start, LAMBDA_start+NAXIS1*DELTA, DELTA)
+    if len(LAMBDA) == NAXIS1+1:
+        LAMBDA = LAMBDA[:-1]
+
+    spec = np.nanmean(data, axis=0)
+    #bin_indices = np.digitize(LAMBDA, LAMBDA_bins)
+    #print(bin_indices)
+
+    hist,_ = np.histogram(LAMBDA, bins=LAMBDA_bins, weights=spec)
+    df[file_id] = hist
+    file_id +=1
+df[29,:]=0
+plt.imshow(df)
+plt.xticks([0,len(LAMBDA_bins)-2],[LAMBDA_bins[0],LAMBDA_bins[-2]])
+plt.yticks([0, file_id-1],[2006,2021])
+plt.xlabel('binned bkg spectrum')
+plt.ylabel('frame (chornological order, yr)')
+plt.show()
+
