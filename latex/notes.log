@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2022.4.11)  26 APR 2022 10:33
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2022.4.11)  28 APR 2022 15:28
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -475,53 +475,52 @@ LaTeX Info: Redefining \nameref on input line 22.
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-<10_det.png, id=42, 375.804pt x 635.976pt>
+<10_det.png, id=37, 375.804pt x 635.976pt>
 File: 10_det.png Graphic file (type png)
 <use 10_det.png>
-Package pdftex.def Info: 10_det.png  used on input line 58.
+Package pdftex.def Info: 10_det.png  used on input line 49.
 (pdftex.def)             Requested size: 169.29684pt x 286.50679pt.
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
 [1
 
-{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
-<2020_IMA91077.png, id=59, 462.528pt x 346.896pt>
-File: 2020_IMA91077.png Graphic file (type png)
-<use 2020_IMA91077.png>
-Package pdftex.def Info: 2020_IMA91077.png  used on input line 91.
-(pdftex.def)             Requested size: 237.01411pt x 177.76152pt.
-
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-[2 <./10_det.png>] [3 <./2020_IMA91077.png>]
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <./10_det.png>]
+<detrend_example.png, id=55, 462.528pt x 346.896pt>
+File: detrend_example.png Graphic file (type png)
+<use detrend_example.png>
+Package pdftex.def Info: detrend_example.png  used on input line 66.
+(pdftex.def)             Requested size: 314.40001pt x 235.81204pt.
+ [2 <./detrend_example.png>]
+<../Figure_1.png, id=66, 462.528pt x 346.896pt>
+File: ../Figure_1.png Graphic file (type png)
+<use ../Figure_1.png>
+Package pdftex.def Info: ../Figure_1.png  used on input line 100.
+(pdftex.def)             Requested size: 362.77264pt x 272.09163pt.
+ [3 <../Figure_1.png>]
 Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on i
-nput line 108.
+nput line 106.
  (../bkg_extractor.py
 LaTeX Font Info:    Trying to load font information for TS1+cmss on input line 
-24.
+29.
 
 (/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmss.fd
 File: ts1cmss.fd 2019/12/16 v2.5j Standard LaTeX font definitions
 ) [4] [5] [6])
 (../bkg_analyzer.py [7])
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 112.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 110.
  [8]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 112.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 110.
  (./notes.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 112.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 112.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 110.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 110.
 Package rerunfilecheck Info: File `notes.out' has not changed.
-(rerunfilecheck)             Checksum: DD3C778E3CF40C536292178D15EB1452;564.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 112.
+(rerunfilecheck)             Checksum: 7676C1856B6D246328DD7819E229987E;496.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 110.
  ) 
 Here is how much of TeX's memory you used:
- 11782 strings out of 481239
- 208830 string characters out of 5920377
- 888015 words of memory out of 5000000
- 26548 multiletter control sequences out of 15000+600000
- 541895 words of font info for 59 fonts, out of 8000000 for 9000
+ 11838 strings out of 481239
+ 209677 string characters out of 5920377
+ 875015 words of memory out of 5000000
+ 26575 multiletter control sequences out of 15000+600000
+ 541217 words of font info for 57 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  35i,9n,45p,598b,2461s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-ts1.enc}</usr/share/texli
@@ -539,10 +538,10 @@ r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/share
 ve/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt8.pfb></usr/share/texmf/fonts/
 type1/public/cm-super/sfrm1000.pfb></usr/share/texmf/fonts/type1/public/cm-supe
 r/sfss0800.pfb>
-Output written on notes.pdf (8 pages, 364818 bytes).
+Output written on notes.pdf (8 pages, 373622 bytes).
 PDF statistics:
- 545 PDF objects out of 1000 (max. 8388607)
- 510 compressed objects within 6 object streams
- 338 named destinations out of 1000 (max. 500000)
- 83 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 579 PDF objects out of 1000 (max. 8388607)
+ 542 compressed objects within 6 object streams
+ 368 named destinations out of 1000 (max. 500000)
+ 80 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -43,15 +43,6 @@ The script I am writing works as follows.
 	
 	\item \arbitrario{I preliminarly decided to cut blue wavelengths at \SI{3500}{\angstrom}. This value was bull-eyed looking at bkg spectra and relizing that this is the treshold where the noise becomes dominant.}
 	
-	\item I estimate the noise level and amplitude for the slit luminosity profile by comparing the original profile with a detrended version.
-	\arbitrario{I used a biweighted detrending algorithm with a windowing of 10 times the slit width}, using the function \href{https://github.com/hippke/wotan}{\texttt{wotam.flatten}}
-	The choice of such a wide widow (about 40\,px for a typical \SI{100}{\micro\metre} slit size) allows us to have a good compromise to estimate both noise level and amplitude: \textcolor{red}{Il fatto di usare la larghezza della slit come unit\`a di misura per la scala spaziale \`e misleading, sarebbe meglio trovare qualcosa di pi\` inerente e magari meno arbitrario, per esempio usare la PSF}
-	\begin{itemize}
-		\item bkg level is the average value of the detrended profile. This is a good estimation of the real value since I used a large window and the light of the bright peaks is smeared on a wide area, making its contribution less relevant.
-		\item noise amplitude is the standard deviation of the original profile wrt the detrended one.
-	\end{itemize}
-	Note choosing a wider window improves the estimation of the bkg level (even if it cannot actually ever converge to the real value) but increases the estimated noise amplitude.
-	
 	\item Cosmic rays and excessive noise are removed. In particular in the bluer part of the spectrum, due to the low sensitivity of the detector, after the flux calibration the noise is extremely high, seriously affecting the quality of the measurements. For example see the image below
 	\begin{figure}[h!]
 		\centering
@@ -63,9 +54,21 @@ The script I am writing works as follows.
 	
 	\item \arbitrario{The columns that afeter the cleaning are depleted of more than the 25\% their pixels are discarted as they are very likely to be noisy columns.}
 	
-	\item On the cleaned frame I take again luminosity profile along the slit (i.e.\ integration on the wavelengths) to search for the astronomical sources. I used \texttt{scipy.signal.find\_peaks} to find the position of the sources. \arbitrario{I selected only those features with a width larger than 3\,px (to be sure not to include unremoved cosmic rays) and with a \href{https://en.wikipedia.org/wiki/Topographic_prominence}{prominence} equal to the estimated noise amplitude.}
+	\item On the cleaned frame I take again luminosity profile along the slit (i.e.\ integration on the wavelengths) to search for the astronomical sources.
+	Some of the frames present a systematic trend in the bkg which makes the source detection not trivial. I decided to proceed as follows:
+	\begin{enumerate}
+		\item Estimate the general trend of the luminosity profile. \arbitrario{I used a biweighted detrending algorithm with a windowing of 200\,px and the fine-tuning parameter \texttt{cval=10}}, using the function \href{https://github.com/hippke/wotan}{\texttt{wotam.flatten}}. Such large window size is still not enough to cancel out the effect of the brightest features.
+		\item \arbitrario{Trim the original light profile} by removing all the data that emerges from the bkg global trend. \arbitrario{I uesd as treshold the detrended profile, vertically shifted by a factor equal to the 5\% of the average bkg level}. A good estimator for the avg bkg level turned to be the median of the original light profile.
+		\item \arbitrario{Perform a new detrend on the trimmed data}. In this case I used a much narrower windows size, \arbitrario{or 50\,px} since it was not necessary to dilute the bright peaks in correspondence of the sources. This can be considered as an estimator for the global bkg trend along the slit.
+	\end{enumerate}
+	\begin{figure}[h!]
+		\centering
+		\includegraphics[width=.65\textwidth]{detrend_example}
+	\end{figure}
+	\item The source peaks are detected automatically with \texttt{scipy.signal.find\_peaks}. Peaks were identified after removing the contribution of the systematic bkg trend detected in the previous step. \arbitrario{I selected only those features with a width larger than 3\,px (to be sure not to include unremoved cosmic rays) and an height greater than the 5\% of the bkg (median) level.}
 	
-	\item I computed the width of the sources with \texttt{scipy.signal.peak\_widths}. \arbitrario{In particular I considered the FWHM which proved to be more solid than the total width. Since many kinds of astronomical sources have a central core and bright wings, I decided to remove a that span $3.5\times\text{FWHM}$ wrt the center of the peak to take into account such wings.}	
+	\item I computed the width of the sources with \texttt{scipy.signal.peak\_widths}. \arbitrario{In particular I considered the FWHM which proved to be more solid than the total width. Since many kinds of astronomical sources have a central core and bright wings, I decided to remove a that span $2.5\times\text{FWHM}$ wrt the center of the peak to take into account such wings.}	
+	In some cases the luminosity profile of the sources is not gaussian and the tails are brighter than the gaussian prevision. In these cases I considered as related to a source also all the pixels arounf the peak that are brighter than what expected from the detrended profile.
 	
 	\item At the end the script produces:
 	\begin{itemize}
@@ -80,17 +83,6 @@ The script I am writing works as follows.
 \[\Delta = \frac{1}{2\sqrt{2\ln 2}}\text{FWHM}\sqrt{\ln(S_\text{max}^2/B)}   \]
 where $S_\text{max}$ was the maximum counts of the source, while $B$ the average level of bkg around the object. Since many extended objects cannot be reproduced by gaussian profiles this estimation may be misleading in many cases. Since the empirical procedure discussed above seems quite solid with current data, implementing a rigorous analytical approach that accounts for different luminosity profiles of the sources, is definitively unecessary.
 
-\subsection{Preliminary results}
-Here I report some relevant results I obtained.
-
-\paragraph{All the data.} Wavelength integrated profiles and bkg-removed spectra obtained with the current configuration are available in the directories \texttt{plots/integr} and \texttt{plots/sky\_spec} respectively. The masked spectra are saved in the same directories of the original files with syntax \texttt{filename.fc.bkg.fits}.
-
-\paragraph{IMA91077 (2020) and others.} In this case we notice that the profile of the bkg is not uniform at all but seems to present a systematic trend. I need to investigate if it is intrinsic (e.g.\ due to a diffuse component) or the result of some calibration or instrumental issue.
-\begin{figure}[h!]
-		\centering
-		\includegraphics[width=.49\textwidth]{2020_IMA91077}
-\end{figure}
-Similar features are presents in other frames like IMA61434 (2017), IMA84983, IMA85634, IMA91077 (2020), IMA95725 and IMA97134 (2021).
 
 \subsection{Comments on the first results}
 
@@ -101,6 +93,12 @@ Similar features are presents in other frames like IMA61434 (2017), IMA84983, IM
 
 \section{Bkg analysis}
 Once the bkg is extraced from each frame and saved into a new one, I can develope a script that reads the new filtered files and process them automatically.
+
+Bkg spectra are chacarterized by few very bright emission lines plus one/two continuum region(s). A very first analisys may consist on lower the resolution of the spectra and compare them with each others. \arbitrario{In particular I decided to bin them in \SI{100}{\angstrom} bin size and crhonologically order them.}
+	\begin{figure}[h!]
+	\centering
+	\includegraphics[width=.75\textwidth]{../Figure_1}
+\end{figure}
 
 \newpage
 \section{Appendix: Python codes}
