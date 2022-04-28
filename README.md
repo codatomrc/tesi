@@ -11,7 +11,7 @@ I am going to update my work daily during the week.
 
 ### Done (from the latest)
 - I improved the bkg detection and extraction fit. Now It computed the systematic bkg trend and removes it before compute position and width of the sources.
-- I sketched some code that bins each spectrum and compares the frames, chornologically ordered.
+- I sketched some code that bins each spectrum and compares the frames, chornologically ordered. ![](./Figure_1.png)
 - I am starting developing a new script that reads the bkg files generated with the first one.
 - **Bkg extraction**. I wrote a script that automatically read and process all the files in a directory.
 For each file a preliminary cosmic ray and noise clening is performed. After that all the astronomical sources are detected by looking at the luminosity profile along the slit (wavelength integration).
