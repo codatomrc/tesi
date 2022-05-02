@@ -10,14 +10,18 @@ I am going to update my work daily during the week.
 ## Roadmap
 
 ### Done (from the latest)
+- I tried to find correlation in the bkg spectra. In particular I checked wheter the total integrated flux correlates with the position on the celestial sphere and the positions of the Moon and the Sun
+![](./radial.png) ![](./positions.png)
+There are no evident correlation with Sun and Moon positions (probably also due to a bat choice of params) while brightest frames seems to be those takes towars S/W direction.
 - I improved the bkg detection and extraction fit. Now It computed the systematic bkg trend and removes it before compute position and width of the sources.
 - I sketched some code that bins each spectrum and compares the frames, chornologically ordered. ![](./Figure_1.png)
 - I am starting developing a new script that reads the bkg files generated with the first one.
 - **Bkg extraction**. I wrote a script that automatically read and process all the files in a directory.
 For each file a preliminary cosmic ray and noise clening is performed. After that all the astronomical sources are detected by looking at the luminosity profile along the slit (wavelength integration).
-The remaining areas are saved in a new file, accompained with new information about the procedure in the header.
+The systematic bkg trend is detected and removed to highlight acutal source peaks. These areas are removed and the remaining ones are saved in a new file, accompained with new information about the procedure in the header.
 
 ### To be done soon (in order of priority)
+- Further investigate current results. Why a frame have around 10 times more counts than the others?
 - Develop a strategy to analyze the different spectral features.
 - Tune the software using more qualitative criteria
 

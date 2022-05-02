@@ -94,11 +94,28 @@ where $S_\text{max}$ was the maximum counts of the source, while $B$ the average
 \section{Bkg analysis}
 Once the bkg is extraced from each frame and saved into a new one, I can develope a script that reads the new filtered files and process them automatically.
 
+\paragraph{Date correlation.}
 Bkg spectra are chacarterized by few very bright emission lines plus one/two continuum region(s). A very first analisys may consist on lower the resolution of the spectra and compare them with each others. \arbitrario{In particular I decided to bin them in \SI{100}{\angstrom} bin size and crhonologically order them.}
-	\begin{figure}[h!]
+\begin{figure}[h!]
 	\centering
 	\includegraphics[width=.75\textwidth]{../Figure_1}
 \end{figure}
+Data seems to be consistent with the claim that the bkg level has increased in the years, likely due to artifical light.
+
+\paragraph{Orientation correlation.} I plotted the position of each frame on the sky sphere (in terms of airmass and azimuth) against the total luminosity of each spectrum (i.e.\ integrated in the wavelengths).
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=.75\textwidth]{../radial}
+\end{figure}
+Appartently brightest measurements are concentrated towar the S/W direction.
+
+\paragraph{Moon and Sun position correlations.}
+I checked whether the position of Moon and Sun affected the total bkg counts. The quantities I checked against the total flux are the Sun altitude below the horizon, the angular separation of from the moon and the moon phase at the epoch of observation.
+	\begin{figure}[h!]
+	\centering
+	\includegraphics[width=.75\textwidth]{../positions}
+\end{figure}
+No evident trends emerged from this analysis, althought this is to the smartest choiche for the plotted quantities. For example all of the 3 quantities of the plot must be considered at the same time since their effects should sum up.
 
 \newpage
 \section{Appendix: Python codes}
