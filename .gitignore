@@ -1,0 +1,7 @@
+### directories
+burocrazia/
+
+### auxiliary latex files
+*.aux
+*.out
+*.synctex
