@@ -4,4 +4,4 @@ burocrazia/
 ### auxiliary latex files
 *.aux
 *.out
-*.synctex
+*.synctex.gz

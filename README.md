@@ -10,6 +10,7 @@ I am going to update my work daily during the week.
 ## Roadmap
 
 ### Done (from the latest)
+- I tried to correlate features over all the bkg spectra. The resuls must be deepened. ![](./covariance.png)
 - I tried to find correlation in the bkg spectra. In particular I checked wheter the total integrated flux correlates with the position on the celestial sphere and the positions of the Moon and the Sun
 ![](./radial.png) ![](./positions.png)
 There are no evident correlation with Sun and Moon positions (probably also due to a bat choice of params) while brightest frames seems to be those takes towars S/W direction.

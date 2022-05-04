@@ -18,7 +18,8 @@ plot_spec = False
 show_ima = False
 
 #PARAMS
-
+bin_min, bin_max = 3500, 8000
+bin_size = 50
 ######################
 Asiago = EarthLocation(lat=45.8664818*u.deg,
                        lon=11.5264273*u.deg,
@@ -30,7 +31,7 @@ main_path = './'
 file_ls = glob.glob(main_path+'/**/*.fc.bkg.fits', recursive= True)
 names = [os.path.basename(x) for x in file_ls]
 
-LAMBDA_bins = np.arange(3500, 8500, 100)
+LAMBDA_bins = np.arange(bin_min, bin_max, bin_size)
 
 df = np.zeros((len(names),len(LAMBDA_bins[:-1])))
 airmasses, azimuths, sun_heights = [], [], []
@@ -88,8 +89,14 @@ for name,file in zip(names,file_ls):
                                moon_pos.ra, moon_pos.dec)*180./np.pi
     moon_dist.append(moon_sep.value)
         
-    
-df[29,:]=0
+
+plt.plot(LAMBDA_bins[:-1], hist/max(hist))
+plt.plot(LAMBDA, spec/max(spec))
+plt.show()
+
+
+   
+#df[29,:]=0
 plt.imshow(df)
 plt.xticks([0,len(LAMBDA_bins)-2],[LAMBDA_bins[0],LAMBDA_bins[-2]])
 plt.yticks([0, file_id-1],[2006,2021])
@@ -127,5 +134,9 @@ ax[1,1].set_ylabel('flux [e/s/cm2]')
 
 plt.tight_layout()
 plt.show()
-
+df = df/df[:,58,np.newaxis]
+cov = np.cov(df.T)
+plt.imshow(cov, extent = [bin_min,bin_max,bin_max,bin_min])
+plt.colorbar()
+plt.show()
 
