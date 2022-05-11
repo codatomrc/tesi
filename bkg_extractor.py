@@ -11,9 +11,9 @@ from scipy.optimize import curve_fit
 ######################
 #OPTIONS
 save_plots = True
-save_FITS = True
+save_FITS = False
 plot_profile = True
-plot_spec = False
+plot_spec = True
 show_ima = False
 
 #PARAMS
@@ -37,6 +37,9 @@ f = open("bkg_extr.log", "w")
 f.write('Running bkg_extr.py at '+
         datetime.now().strftime("%H:%M:%S, %Y-%m-%d")+'\n')
 f.close()
+
+#import table of known lines
+lines = np.genfromtxt('lines.txt', usecols=0)
 
 #append to the log
 warnings_count = 0
@@ -174,7 +177,7 @@ for name,file in zip(names,file_ls):
         no_source = " WARNING: no sources were detected"
         log_append(no_source)
 
-    #generate a boolena mask True outside the peaks
+    #generate a boolean mask True outside the peaks
     bkg_sel = np.full(np.shape(x), True)
     for i,peak in enumerate(peaks):
         width = (int(peak_FWHM[i])+1)*width_mult
@@ -229,9 +232,11 @@ for name,file in zip(names,file_ls):
     #plot the spatially integrated spectrum of the bkg
     if 1 == plot_spec:
         plt.title(year+'/'+name[:-8]+': bkg spectrum')
-        plt.plot(LAMBDA, total, label='full frame', color='gray', alpha=0.3)
-        plt.plot(LAMBDA, sky, label='sky only')
-        plt.legend()
+        plt.plot(LAMBDA, total,  color='gray', alpha=0.3)
+        plt.plot(LAMBDA, sky)
+        for line in lines:
+            plt.axvline(x=line, c='C1', alpha=.2)
+        plt.legend(['full frame', 'sky only', 'known lines'])
         if save_plots is True:
             plt.savefig('./plots/sky_spec/'+year+'_'+name[:-8]+'.png')
             plt.close()

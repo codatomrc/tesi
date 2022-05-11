@@ -7,6 +7,7 @@ from astropy.coordinates import SkyCoord, EarthLocation, AltAz, get_sun, get_moo
 from astropy import units as u
 #from scipy.signal import find_peaks, peak_widths, detrend
 from scipy import ndimage
+from scipy.optimize import curve_fit
 from datetime import datetime
 import glob
 import os
@@ -20,10 +21,19 @@ show_ima = False
 #PARAMS
 bin_min, bin_max = 3500, 8000
 bin_size = 50
+fit_window = 10 #anggrom
 ######################
 Asiago = EarthLocation(lat=45.8664818*u.deg,
                        lon=11.5264273*u.deg,
                        height=1044.2*u.m)
+
+# import lines table
+lines = np.genfromtxt('lines.txt', usecols=0)
+widths = np.zeros(len(lines))
+
+#define gaussian function for line fit
+def gauss(x, H, A, x0, sigma):
+    return H + A * np.exp(-(x - x0) ** 2 / (2 * sigma ** 2))
 
 #browse all the *.fc.fits files in a directory and its subdirectories
 main_path = './Asiago_nightsky/2011/'
@@ -58,6 +68,38 @@ for name,file in zip(names,file_ls):
         LAMBDA = LAMBDA[:-1]
 
     spec = np.nanmean(data, axis=0)
+
+    EWs = []
+    for line in lines:
+        line_id = np.argmin(abs(LAMBDA-line))
+        x = LAMBDA[line_id-fit_window: line_id+fit_window]
+        y = spec[line_id-fit_window: line_id+fit_window]
+        params,_ = curve_fit(gauss,x,y, p0=[1e-16, 1e-15, line, 5])
+        y_fit =gauss(x, *params)
+        #plt.plot(x,y_fit)
+        #plt.axvline(x=line, c='C1', alpha=.2)
+
+        #equivalent width, area from the analitycal gaussian integral
+        EW = 1/params[0]*params[1]*np.sqrt(2*np.pi)*params[-1]
+        EWs.append(EW)
+    widths = np.vstack([widths, EWs])
+    #plt.plot(LAMBDA, spec)
+widths = widths[1:]
+cm = plt.cm.rainbow(np.linspace(0, 1, len(file_ls)))
+for i in range(len(file_ls)):
+    plt.plot(widths[i].T, color=cm[i])
+plt.xlabel('line (from bluer to redder)')
+plt.ylabel('EW (A)')
+plt.ylim(0,+50)
+sm = plt.cm.ScalarMappable(cmap='rainbow')
+cbar = plt.colorbar(sm, ticks=[0,1])
+cbar.set_ticklabels([2006,2021])
+plt.xticks([])
+plt.show()
+
+
+
+'''
     #bin_indices = np.digitize(LAMBDA, LAMBDA_bins)
     #print(bin_indices)
 
@@ -88,8 +130,14 @@ for name,file in zip(names,file_ls):
     moon_sep = angular_separation(RA_DEC_coord.ra,RA_DEC_coord.dec,
                                moon_pos.ra, moon_pos.dec)*180./np.pi
     moon_dist.append(moon_sep.value)
+    '''
         
 
+plt.plot(LAMBDA, spec/max(spec))
+for line in lines:
+    plt.axvline(x=line, c='C1', alpha=.2)
+plt.show()
+'''
 plt.plot(LAMBDA_bins[:-1], hist/max(hist))
 plt.plot(LAMBDA, spec/max(spec))
 plt.show()
@@ -139,4 +187,4 @@ cov = np.cov(df.T)
 plt.imshow(cov, extent = [bin_min,bin_max,bin_max,bin_min])
 plt.colorbar()
 plt.show()
-
+'''
