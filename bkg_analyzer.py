@@ -21,7 +21,7 @@ show_ima = False
 #PARAMS
 bin_min, bin_max = 3500, 8000
 bin_size = 50
-fit_window = 10 #anggrom
+fit_window = 20 #anggrom
 ######################
 Asiago = EarthLocation(lat=45.8664818*u.deg,
                        lon=11.5264273*u.deg,
@@ -29,15 +29,16 @@ Asiago = EarthLocation(lat=45.8664818*u.deg,
 
 # import lines table
 lines = np.genfromtxt('lines.txt', usecols=0)
+line_diff = np.diff(lines)
 widths = np.zeros(len(lines))
 
 #define gaussian function for line fit
-def gauss(x, H, A, x0, sigma):
-    return H + A * np.exp(-(x - x0) ** 2 / (2 * sigma ** 2))
+def gauss(x, H, A, x0, sigma, b):
+    return H + A * np.exp(-(x - x0) ** 2 / (2 * sigma ** 2)) + b*(x-x0)
 
 #browse all the *.fc.fits files in a directory and its subdirectories
-main_path = './Asiago_nightsky/2011/'
-main_path = './'
+main_path = './Asiago_nightsky/2009/'
+#main_path = './'
 file_ls = glob.glob(main_path+'/**/*.fc.bkg.fits', recursive= True)
 names = [os.path.basename(x) for x in file_ls]
 
@@ -69,25 +70,45 @@ for name,file in zip(names,file_ls):
 
     spec = np.nanmean(data, axis=0)
 
+    #remove blended lines, i.e. to be considered as a single feature
+    close_lines = np.where(line_diff < 3*DELTA, False, True)
+    close_lines = np.insert(close_lines, 0, True)
+    fit_lines = lines[close_lines]
+
+    fit_region = np.zeros(len(LAMBDA))
+    for line in fit_lines:
+        fit_region += np.where(abs(LAMBDA-line )<fit_window, -1,0)
+    fit_region = np.where(fit_region < 0, True, False)
+    
+    fit_data = np.ma.masked_where(fit_region == 0, fit_region)
+    #np.where(fit_region < 0, spec, np.nan)
+
     EWs = []
-    for line in lines:
+    for line in fit_lines:
         line_id = np.argmin(abs(LAMBDA-line))
         x = LAMBDA[line_id-fit_window: line_id+fit_window]
         y = spec[line_id-fit_window: line_id+fit_window]
-        params,_ = curve_fit(gauss,x,y, p0=[1e-16, 1e-15, line, 5])
-        y_fit =gauss(x, *params)
-        #plt.plot(x,y_fit)
-        #plt.axvline(x=line, c='C1', alpha=.2)
+        try:
+            params,_ = curve_fit(gauss,x,y, p0=[1e-16, 1e-15, line, 5, 0])
+            y_fit =gauss(x, *params)
+            #plt.plot(x,y_fit)
+            #plt.axvline(x=line, c='C1', alpha=.2)
 
-        #equivalent width, area from the analitycal gaussian integral
-        EW = 1/params[0]*params[1]*np.sqrt(2*np.pi)*params[-1]
-        EWs.append(EW)
-    widths = np.vstack([widths, EWs])
+            #equivalent width from the fitted signal
+            def continuum(x):
+                return params[1]+params[4]*(x-params[2])
+            EW = np.sum(1-gauss(x,*params)/continuum(x))
+            EWs.append(EW)
+        except RuntimeError:
+            pass
+        plt.plot(EWs)
+    #widths = np.vstack([widths, EWs])
     #plt.plot(LAMBDA, spec)
-widths = widths[1:]
-cm = plt.cm.rainbow(np.linspace(0, 1, len(file_ls)))
-for i in range(len(file_ls)):
-    plt.plot(widths[i].T, color=cm[i])
+plt.show()
+#widths = widths[1:]
+#cm = plt.cm.rainbow(np.linspace(0, 1, len(file_ls)))
+#for i in range(len(file_ls)):
+#    plt.plot(widths[i].T, color=cm[i])
 plt.xlabel('line (from bluer to redder)')
 plt.ylabel('EW (A)')
 plt.ylim(0,+50)
@@ -133,8 +154,9 @@ plt.show()
     '''
         
 
-plt.plot(LAMBDA, spec/max(spec))
-for line in lines:
+plt.plot(LAMBDA, spec, label='spectrum')
+plt.plot(LAMBDA, fit_data*spec, label='fitted regions')
+for line in fit_lines:
     plt.axvline(x=line, c='C1', alpha=.2)
 plt.show()
 '''

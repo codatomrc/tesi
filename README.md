@@ -10,6 +10,7 @@ I am going to update my work daily during the week.
 ## Roadmap
 
 ### Done (from the latest)
+- I am trying to automatically fit the list of lines in the bkg spectrum to extract the EW. Lines are fitted with gaussians profiles whilte the underlying contunuum is linearly approximated around the line.
 - I tried to correlate features over all the bkg spectra. The resuls must be deepened. ![](./covariance.png)
 - I tried to find correlation in the bkg spectra. In particular I checked wheter the total integrated flux correlates with the position on the celestial sphere and the positions of the Moon and the Sun
 ![](./radial.png) ![](./positions.png)
@@ -22,8 +23,8 @@ For each file a preliminary cosmic ray and noise clening is performed. After tha
 The systematic bkg trend is detected and removed to highlight acutal source peaks. These areas are removed and the remaining ones are saved in a new file, accompained with new information about the procedure in the header.
 
 ### To be done soon (in order of priority)
+- Implement an efficient way to automatically measure the EW.
 - Further investigate current results. Why a frame have around 10 times more counts than the others?
-- Develop a strategy to analyze the different spectral features.
 - Tune the software using more qualitative criteria
 
 ### Next steps (likely):
@@ -34,6 +35,5 @@ and the size of the slit. The problem is that the slit size is quite uncertain a
 
 ### Future major steps (likely):
 - Decide how to model the various contributions to the bkg spectrum, in particular LED lights have very different types of spectra.
-- Fit the data to obtain the weights of the various sources of the bkg. 
 - Develope a convenient strategy to find correlation between the results of the fit and the observation conditions.
 - Somehow include error propagation in the whole analysis.
