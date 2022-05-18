@@ -1,6 +1,7 @@
 import numpy as np
 import numpy.ma as ma
 import matplotlib.pyplot as plt
+from scipy.signal import find_peaks, peak_widths
 from astropy.io import fits
 from astropy.time import Time
 from astropy.coordinates import SkyCoord, EarthLocation, AltAz, get_sun, get_moon, angular_separation
@@ -11,17 +12,16 @@ from scipy.optimize import curve_fit
 from datetime import datetime
 import glob
 import os
+from wotan import flatten
 ######################
 #OPTIONS
-savefiles = False
-plot_profile = False
-plot_spec = False
-show_ima = False
+plot_ranges = True
+save_ranges = True
 
 #PARAMS
 bin_min, bin_max = 3500, 8000
 bin_size = 50
-fit_window = 20 #anggrom
+fit_window = 30 #angstrom
 ######################
 Asiago = EarthLocation(lat=45.8664818*u.deg,
                        lon=11.5264273*u.deg,
@@ -32,13 +32,17 @@ lines = np.genfromtxt('lines.txt', usecols=0)
 line_diff = np.diff(lines)
 widths = np.zeros(len(lines))
 
+range_start, range_end, n_lines = np.genfromtxt('ranges.txt').T
+ranges = np.array([range_start,range_end]).T
+
+
 #define gaussian function for line fit
 def gauss(x, H, A, x0, sigma, b):
     return H + A * np.exp(-(x - x0) ** 2 / (2 * sigma ** 2)) + b*(x-x0)
 
 #browse all the *.fc.fits files in a directory and its subdirectories
-main_path = './Asiago_nightsky/2009/'
-#main_path = './'
+main_path = './Asiago_nightsky/2012/'
+main_path = './'
 file_ls = glob.glob(main_path+'/**/*.fc.bkg.fits', recursive= True)
 names = [os.path.basename(x) for x in file_ls]
 
@@ -47,7 +51,6 @@ LAMBDA_bins = np.arange(bin_min, bin_max, bin_size)
 df = np.zeros((len(names),len(LAMBDA_bins[:-1])))
 airmasses, azimuths, sun_heights = [], [], []
 moon_phases, moon_dist = [],[]
-
 
 #process all the files found
 file_id = 0
@@ -61,28 +64,50 @@ for name,file in zip(names,file_ls):
     NAXIS1, NAXIS2 = hdr['NAXIS1'], hdr['NAXIS2']
     LAMBDA0, DELTA = hdr['CRVAL1'], hdr['CDELT1']
     LAMBDA_lim = hdr['UVLIM']
+    year = hdr['DATE-OBS'][:4]
 
     #the (eventually) UV-limited wavelengths array
     LAMBDA_start = max(LAMBDA_lim, LAMBDA0)
     LAMBDA = np.arange(LAMBDA_start, LAMBDA_start+NAXIS1*DELTA, DELTA)
     if len(LAMBDA) == NAXIS1+1:
         LAMBDA = LAMBDA[:-1]
-
+    
     spec = np.nanmean(data, axis=0)
 
     #remove blended lines, i.e. to be considered as a single feature
-    close_lines = np.where(line_diff < 3*DELTA, False, True)
+    close_lines = np.where(line_diff < .1*DELTA, False, True)
     close_lines = np.insert(close_lines, 0, True)
     fit_lines = lines[close_lines]
 
+    # the fit in the ranges from the table instead of the whole spectrum
     fit_region = np.zeros(len(LAMBDA))
-    for line in fit_lines:
-        fit_region += np.where(abs(LAMBDA-line )<fit_window, -1,0)
+    for line_range in ranges:
+        lower_sel = LAMBDA>line_range[0]
+        upper_sel = LAMBDA < line_range[1]
+        in_the_range = lower_sel * upper_sel
+        fit_region[in_the_range] = -1
+        '''
+        here I can fit the lines
+        '''
+        
     fit_region = np.where(fit_region < 0, True, False)
-    
     fit_data = np.ma.masked_where(fit_region == 0, fit_region)
-    #np.where(fit_region < 0, spec, np.nan)
 
+    #plot the regions to be fitted
+    if 1==plot_ranges:
+        plt.close()
+        plt.plot(LAMBDA, spec, lw=0.5)
+        plt.plot(LAMBDA, fit_data*spec, lw=.5)
+        for line in fit_lines:
+            plt.axvline(x=line, c='C2', alpha=.2)
+        plt.legend(['spectrum','fitted regions','known lines'])
+
+        if save_ranges is True:
+            plt.savefig('./plots/fit_regions/'+year+'_'+name[:-8]+'.png', dpi=500)
+        else:
+            plt.show()
+            
+    '''
     EWs = []
     for line in fit_lines:
         line_id = np.argmin(abs(LAMBDA-line))
@@ -118,7 +143,7 @@ cbar.set_ticklabels([2006,2021])
 plt.xticks([])
 plt.show()
 
-
+'''
 
 '''
     #bin_indices = np.digitize(LAMBDA, LAMBDA_bins)

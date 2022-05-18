@@ -10,7 +10,8 @@ I am going to update my work daily during the week.
 ## Roadmap
 
 ### Done (from the latest)
-- I am trying to automatically fit the list of lines in the bkg spectrum to extract the EW. Lines are fitted with gaussians profiles whilte the underlying contunuum is linearly approximated around the line.
+- I manually selected some wavelenght ranges in which permorm the line fit. These ranges works for all the frames. In the directory ´´plots/fit_regions´´ I reported the results of the wavelenght selection, which is consisten for all the frames.
+I am going to fit only these regions with a suitable number of gaussian profiles plus a liner (or quadratic?) continuum.
 - I tried to correlate features over all the bkg spectra. The resuls must be deepened. ![](./covariance.png)
 - I tried to find correlation in the bkg spectra. In particular I checked wheter the total integrated flux correlates with the position on the celestial sphere and the positions of the Moon and the Sun
 ![](./radial.png) ![](./positions.png)
