@@ -37,8 +37,17 @@ ranges = np.array([range_start,range_end]).T
 
 
 #define gaussian function for line fit
-def gauss(x, H, A, x0, sigma, b):
-    return H + A * np.exp(-(x - x0) ** 2 / (2 * sigma ** 2)) + b*(x-x0)
+def gauss(x, par_list):
+    y = 0
+    for par in par_list:
+        A, x0, sigma = par
+        y += A * np.exp(-(x - x0) ** 2 / (2 * sigma ** 2))
+    return y
+
+
+def linear(x, par):
+    a,b = par
+    return a + b*x
 
 #browse all the *.fc.fits files in a directory and its subdirectories
 main_path = './Asiago_nightsky/2012/'
@@ -81,14 +90,25 @@ for name,file in zip(names,file_ls):
 
     # the fit in the ranges from the table instead of the whole spectrum
     fit_region = np.zeros(len(LAMBDA))
-    for line_range in ranges:
+    
+    for line_range,n in zip(ranges,n_lines):
         lower_sel = LAMBDA>line_range[0]
         upper_sel = LAMBDA < line_range[1]
         in_the_range = lower_sel * upper_sel
         fit_region[in_the_range] = -1
+        
         '''
         here I can fit the lines
         '''
+        #init array to be fitted
+        x = np.where(fit_region < 0, True, False)
+        y = np.ma.masked_where(fit_region == 0, fit_region)
+
+        #par_guess =[ [A1, x0_1, sigma1],
+        #             [A2, x0_2, sigma2],
+        #              ...                 ]
+
+
         
     fit_region = np.where(fit_region < 0, True, False)
     fit_data = np.ma.masked_where(fit_region == 0, fit_region)
