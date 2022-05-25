@@ -15,8 +15,8 @@ import os
 from wotan import flatten
 ######################
 #OPTIONS
-plot_ranges = True
-save_ranges = True
+plot_ranges = False
+save_ranges = False
 
 #PARAMS
 bin_min, bin_max = 3500, 8000
@@ -28,30 +28,30 @@ Asiago = EarthLocation(lat=45.8664818*u.deg,
                        height=1044.2*u.m)
 
 # import lines table
-lines = np.genfromtxt('lines.txt', usecols=0)
-line_diff = np.diff(lines)
-widths = np.zeros(len(lines))
+lines_raw = np.genfromtxt('lines.txt', usecols=0)
+line_diff = np.diff(lines_raw)
+widths = np.zeros(len(lines_raw))
 
 range_start, range_end, n_lines = np.genfromtxt('ranges.txt').T
 ranges = np.array([range_start,range_end]).T
 
 
 #define gaussian function for line fit
-def gauss(x, par_list):
+def gauss(x, *par_list):
+    _n = int(len(par_list)/3.)
+    print(np.asarray(par_list)[0])
+    #print(_n)
+    par_list =np.asarray(par_list).reshape(_n,3)
+    
     y = 0
-    for par in par_list:
+    for par in par_list:        
         A, x0, sigma = par
         y += A * np.exp(-(x - x0) ** 2 / (2 * sigma ** 2))
     return y
 
-
-def linear(x, par):
-    a,b = par
-    return a + b*x
-
 #browse all the *.fc.fits files in a directory and its subdirectories
 main_path = './Asiago_nightsky/2012/'
-main_path = './'
+#main_path = './'
 file_ls = glob.glob(main_path+'/**/*.fc.bkg.fits', recursive= True)
 names = [os.path.basename(x) for x in file_ls]
 
@@ -84,34 +84,53 @@ for name,file in zip(names,file_ls):
     spec = np.nanmean(data, axis=0)
 
     #remove blended lines, i.e. to be considered as a single feature
-    close_lines = np.where(line_diff < .1*DELTA, False, True)
+    close_lines = np.where(line_diff < 5*DELTA, False, True)
     close_lines = np.insert(close_lines, 0, True)
-    fit_lines = lines[close_lines]
+    lines = lines_raw[close_lines]
 
     # the fit in the ranges from the table instead of the whole spectrum
     fit_region = np.zeros(len(LAMBDA))
-    
-    for line_range,n in zip(ranges,n_lines):
-        lower_sel = LAMBDA>line_range[0]
-        upper_sel = LAMBDA < line_range[1]
+
+    def in_range(array, boundary):
+        output = np.zeros(len(array), dtype=bool)
+        lower_sel = array>line_range[0]
+        upper_sel = array < line_range[1]
         in_the_range = lower_sel * upper_sel
-        fit_region[in_the_range] = -1
+        output[in_the_range] = True
+        return output
+        
+    for line_range in ranges:
+        fit_region = in_range(LAMBDA, line_range)
+        fit_lines = in_range(lines, line_range)
+
+        #total number of lines in the range
+        n = np.sum(fit_lines)
         
         '''
         here I can fit the lines
         '''
         #init array to be fitted
-        x = np.where(fit_region < 0, True, False)
-        y = np.ma.masked_where(fit_region == 0, fit_region)
+        x = LAMBDA[fit_region]
+        y = spec[fit_region]
 
-        #par_guess =[ [A1, x0_1, sigma1],
-        #             [A2, x0_2, sigma2],
-        #              ...                 ]
+        #init param guess array
+        par_guess = np.zeros((int(n),3))
+        par_guess.T[1] = lines[fit_lines]
+        par_guess.T[0] = np.mean(spec)
+        par_guess.T[2] = 5.
+        par_guess = par_guess.flatten()
 
-
+        #params,_ = curve_fit(gauss,x,y, p0=par_guess)
         
-    fit_region = np.where(fit_region < 0, True, False)
-    fit_data = np.ma.masked_where(fit_region == 0, fit_region)
+        #y_fit = gauss(x, params)
+        #print(y_fit)
+        #plt.plot(x,y_fit)
+        #plt.show()
+        
+        
+    plt.show()    
+    #fit_region = np.where(fit_region == 1, True, False)
+    #fit_data = np.ma.masked_where(fit_region == 1, fit_region)
 
     #plot the regions to be fitted
     if 1==plot_ranges:
@@ -199,8 +218,8 @@ plt.show()
     '''
         
 
-plt.plot(LAMBDA, spec, label='spectrum')
-plt.plot(LAMBDA, fit_data*spec, label='fitted regions')
+#plt.plot(LAMBDA, spec, label='spectrum')
+#plt.plot(LAMBDA[, fit_data*spec, label='fitted regions')
 for line in fit_lines:
     plt.axvline(x=line, c='C1', alpha=.2)
 plt.show()
