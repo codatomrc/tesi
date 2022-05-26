@@ -13,10 +13,14 @@ from datetime import datetime
 import glob
 import os
 from wotan import flatten
+from scipy.special import wofz
 ######################
 #OPTIONS
 plot_ranges = False
 save_ranges = False
+
+plot_fits = True
+save_fits = True
 
 #PARAMS
 bin_min, bin_max = 3500, 8000
@@ -32,26 +36,12 @@ lines_raw = np.genfromtxt('lines.txt', usecols=0)
 line_diff = np.diff(lines_raw)
 widths = np.zeros(len(lines_raw))
 
-range_start, range_end, n_lines = np.genfromtxt('ranges.txt').T
+range_start, range_end = np.genfromtxt('ranges.txt').T
 ranges = np.array([range_start,range_end]).T
 
-
-#define gaussian function for line fit
-def gauss(x, *par_list):
-    _n = int(len(par_list)/3.)
-    print(np.asarray(par_list)[0])
-    #print(_n)
-    par_list =np.asarray(par_list).reshape(_n,3)
-    
-    y = 0
-    for par in par_list:        
-        A, x0, sigma = par
-        y += A * np.exp(-(x - x0) ** 2 / (2 * sigma ** 2))
-    return y
-
 #browse all the *.fc.fits files in a directory and its subdirectories
-main_path = './Asiago_nightsky/2012/'
-#main_path = './'
+main_path = './Asiago_nightsky/2021/'
+main_path = './'
 file_ls = glob.glob(main_path+'/**/*.fc.bkg.fits', recursive= True)
 names = [os.path.basename(x) for x in file_ls]
 
@@ -98,39 +88,71 @@ for name,file in zip(names,file_ls):
         in_the_range = lower_sel * upper_sel
         output[in_the_range] = True
         return output
-        
+
+    '''
+    LINE FIT
+    '''
+    plt.plot(LAMBDA, spec, c='C0', lw=0.5) #plot the spectrum below fitted lines
     for line_range in ranges:
         fit_region = in_range(LAMBDA, line_range)
         fit_lines = in_range(lines, line_range)
 
         #total number of lines in the range
         n = np.sum(fit_lines)
-        
-        '''
-        here I can fit the lines
-        '''
+
         #init array to be fitted
         x = LAMBDA[fit_region]
         y = spec[fit_region]
 
-        #init param guess array
-        par_guess = np.zeros((int(n),3))
-        par_guess.T[1] = lines[fit_lines]
-        par_guess.T[0] = np.mean(spec)
-        par_guess.T[2] = 5.
+        #init line voight guess array
+        par_guess = np.zeros((int(n),4))
+        par_guess.T[1] = lines[fit_lines] #x0
+        par_guess.T[0] = np.mean(spec) # A
+        par_guess.T[2] = 5. #sigma
+        par_guess.T[3] = 5. #gamma
         par_guess = par_guess.flatten()
+        #INIT poly continuum guess
+        par_guess = np.append(par_guess, np.median(spec))
+        par_guess = np.append(par_guess, 0)
+        #par_guess = np.append(par_guess, 0)
+        #par_guess = np.append(par_guess, 0)
 
-        #params,_ = curve_fit(gauss,x,y, p0=par_guess)
+        #define gaussian function for line fit
+        def profile(x, *par_list):
+            par_list = np.asarray(par_list)
+            a,b = par_list[-2:]
+            par_list = par_list[:-2]
         
-        #y_fit = gauss(x, params)
-        #print(y_fit)
-        #plt.plot(x,y_fit)
-        #plt.show()
+            _n = int(len(par_list)/4.)
+            par_list =np.asarray(par_list).reshape(_n,4)
+            ####################################################
+            ####TO BE CORRECTED, I.E. BETTER y = a+ b*(x-x0) +c*(x-x0)**2....
+            y = a+b*x#+c*x**2.#+d*x**3.
+            ####################################################
+            for par in par_list:        
+                A, x0, sigma,gamma = par
+                # y+= A*np.exp(-(x-x0)**2./(2*sigma**2.)) #gauss
+                #voight profile
+                y += A*np.real(wofz(((x-x0) + 1j*gamma)/sigma/np.sqrt(2)))
+            return y
+        try:
+            params,_ = curve_fit(profile,x,y, p0=par_guess)
         
+            y_fit = profile(x, *params)
         
-    plt.show()    
-    #fit_region = np.where(fit_region == 1, True, False)
-    #fit_data = np.ma.masked_where(fit_region == 1, fit_region)
+            plt.plot(x,y_fit, c='C1', lw=0.5)
+            a,b = params[-2:]
+            plt.plot(x,a+b*x, c='C1', lw=0.5, ls='dashed')
+            plt.legend(['spectrum', 'fitted lines', 'fitted continuum'])
+        except:
+            pass#print("fit failed!")
+          
+    if save_fits is True:
+        plt.savefig('./plots/fit_lines/'+year+'_'+name[:-8]+'.png', dpi=500)
+        plt.close()
+    else:
+        if plot_fits is True:
+            plt.show()
 
     #plot the regions to be fitted
     if 1==plot_ranges:
@@ -220,9 +242,9 @@ plt.show()
 
 #plt.plot(LAMBDA, spec, label='spectrum')
 #plt.plot(LAMBDA[, fit_data*spec, label='fitted regions')
-for line in fit_lines:
-    plt.axvline(x=line, c='C1', alpha=.2)
-plt.show()
+#for line in fit_lines:
+#    plt.axvline(x=line, c='C1', alpha=.2)
+#plt.show()
 '''
 plt.plot(LAMBDA_bins[:-1], hist/max(hist))
 plt.plot(LAMBDA, spec/max(spec))
