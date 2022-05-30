@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2022.4.11)  26 MAY 2022 10:34
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2022.4.11)  30 MAY 2022 10:52
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -502,53 +502,48 @@ mr/m/n/10 .
  []
 
 [3 <./prova_fit.png>]
-<../Figure_1.png, id=85, 462.528pt x 346.896pt>
+<../Figure_1.png, id=85, 462.528pt x 213.1965pt>
 File: ../Figure_1.png Graphic file (type png)
 <use ../Figure_1.png>
 Package pdftex.def Info: ../Figure_1.png  used on input line 117.
-(pdftex.def)             Requested size: 362.77264pt x 272.09163pt.
+(pdftex.def)             Requested size: 362.77264pt x 167.22298pt.
 <../radial.png, id=86, 462.528pt x 346.896pt>
 File: ../radial.png Graphic file (type png)
 <use ../radial.png>
 Package pdftex.def Info: ../radial.png  used on input line 124.
 (pdftex.def)             Requested size: 362.77264pt x 272.09163pt.
-
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
 <../positions.png, id=87, 462.528pt x 346.896pt>
 File: ../positions.png Graphic file (type png)
 <use ../positions.png>
 Package pdftex.def Info: ../positions.png  used on input line 132.
 (pdftex.def)             Requested size: 362.77264pt x 272.09163pt.
 
+
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-<../covariance.png, id=88, 778.3479pt x 659.1024pt>
+[4 <../Figure_1.png> <../radial.png>]
+<../covariance.png, id=97, 778.3479pt x 659.1024pt>
 File: ../covariance.png Graphic file (type png)
 <use ../covariance.png>
 Package pdftex.def Info: ../covariance.png  used on input line 139.
 (pdftex.def)             Requested size: 362.77264pt x 307.1935pt.
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-[4 <../Figure_1.png>]
+ [5 <../positions.png> <../covariance.png>]
 Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on i
 nput line 145.
- (../bkg_extractor.py [5 <../radial.png> <../positions.png>]
+ (../bkg_extractor.py
 LaTeX Font Info:    Trying to load font information for TS1+cmss on input line 
 29.
  (/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmss.fd
 File: ts1cmss.fd 2019/12/16 v2.5j Standard LaTeX font definitions
-) [6 <../covariance.png>] [7] [8]) [9] (../bkg_analyzer.py [10] [11] [12]
+) [6] [7] [8]) (../bkg_analyzer.py [9] [10] [11] [12]
 LaTeX Font Info:    Trying to load font information for OMS+cmss on input line 
-265.
-LaTeX Font Info:    No file OMScmss.fd. on input line 265.
+273.
+LaTeX Font Info:    No file OMScmss.fd. on input line 273.
 
 
 LaTeX Font Warning: Font shape `OMS/cmss/m/n' undefined
 (Font)              using `OMS/cmsy/m/n' instead
-(Font)              for symbol `textbraceleft' on input line 265.
+(Font)              for symbol `textbraceleft' on input line 273.
 
 )
 Package atveryend Info: Empty hook `BeforeClearDocument' on input line 149.
@@ -566,13 +561,13 @@ LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 149.
  ) 
 Here is how much of TeX's memory you used:
- 12186 strings out of 481239
- 214835 string characters out of 5920377
- 881015 words of memory out of 5000000
+ 12194 strings out of 481239
+ 214963 string characters out of 5920377
+ 875015 words of memory out of 5000000
  26672 multiletter control sequences out of 15000+600000
  541563 words of font info for 58 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 35i,11n,45p,598b,2465s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 35i,11n,45p,598b,2461s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-ts1.enc}</usr/share/texli
 ve/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/texlive/tex
 mf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texlive/texmf-dis
@@ -590,10 +585,10 @@ f-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/share/texlive/texmf-dist
 /fonts/type1/public/amsfonts/cm/cmtt8.pfb></usr/share/texmf/fonts/type1/public/
 cm-super/sfrm1000.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfss0800.pf
 b>
-Output written on notes.pdf (13 pages, 823316 bytes).
+Output written on notes.pdf (13 pages, 884677 bytes).
 PDF statistics:
- 914 PDF objects out of 1000 (max. 8388607)
- 859 compressed objects within 9 object streams
- 613 named destinations out of 1000 (max. 500000)
+ 923 PDF objects out of 1000 (max. 8388607)
+ 868 compressed objects within 9 object streams
+ 621 named destinations out of 1000 (max. 500000)
  116 words of extra memory for PDF output out of 10000 (max. 10000000)
 

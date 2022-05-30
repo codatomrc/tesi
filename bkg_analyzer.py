@@ -40,7 +40,7 @@ range_start, range_end = np.genfromtxt('ranges.txt').T
 ranges = np.array([range_start,range_end]).T
 
 #browse all the *.fc.fits files in a directory and its subdirectories
-main_path = './Asiago_nightsky/2021/'
+main_path = './Asiago_nightsky/2020/'
 main_path = './'
 file_ls = glob.glob(main_path+'/**/*.fc.bkg.fits', recursive= True)
 names = [os.path.basename(x) for x in file_ls]
@@ -96,6 +96,7 @@ for name,file in zip(names,file_ls):
     for line_range in ranges:
         fit_region = in_range(LAMBDA, line_range)
         fit_lines = in_range(lines, line_range)
+        
 
         #total number of lines in the range
         n = np.sum(fit_lines)
@@ -135,6 +136,10 @@ for name,file in zip(names,file_ls):
                 #voight profile
                 y += A*np.real(wofz(((x-x0) + 1j*gamma)/sigma/np.sqrt(2)))
             return y
+
+        #for line in lines[fit_lines]:
+        #    plt.axvline(x=line, c='C2', alpha=.2)
+        #plt.plot(LAMBDA, fit_region*spec, lw=.5, c='C3')
         try:
             params,_ = curve_fit(profile,x,y, p0=par_guess)
         
@@ -146,6 +151,9 @@ for name,file in zip(names,file_ls):
             plt.legend(['spectrum', 'fitted lines', 'fitted continuum'])
         except:
             pass#print("fit failed!")
+
+        for line in lines[fit_lines]:
+            plt.axvline(x=line, c='C2', alpha=.2)
           
     if save_fits is True:
         plt.savefig('./plots/fit_lines/'+year+'_'+name[:-8]+'.png', dpi=500)
