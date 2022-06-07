@@ -108,6 +108,17 @@ I want to measure most of the spectral lines containted in sky spectra and repor
 	\item Currently I am trying to fit lines with voight profiles and the continuum with a degree 1 polynomial. Above an example of the result for the frame labelled as \texttt{IMA53906} (2016).
 \end{itemize}
 
+\paragraph{Tentative results.} I computed EWs of each line as
+\[ \text{EW} = \sum_i \left( 1-\frac{V(\lambda_i,\vec p)}{a+b\lambda_i}  \right) \]
+where $V$ is the Voight profile, $\vec p$ its best fit params and $a$ and $b$ the best fit coefficients for the underlying continuum. I can plot the resulting EWs as a function of the epoch of observation, as shown below.
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=.9\textwidth]{../EWs}
+\end{figure}
+We can notice that in general red lines (to be identified, maybe Na?) are weaker in the most recent spectra. Concerning bluer lines appartently is seems the same as the red ones, but one should check more quantitatively.
+
+A possible explaination is that this is due to the reduction of Na/Hg street lamps in favour of LED lights (that have no lines but a continuum emission).
+
 \subsection{Tentative analysis on the whole spectra}
 
 \paragraph{Date correlation.}

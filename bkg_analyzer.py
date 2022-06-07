@@ -19,13 +19,15 @@ from scipy.special import wofz
 plot_ranges = False
 save_ranges = False
 
-plot_fits = True
-save_fits = True
+plot_fits = False
+save_fits = False
 
 #PARAMS
 bin_min, bin_max = 3500, 8000
 bin_size = 50
 fit_window = 30 #angstrom
+
+JD0 = 2450000
 ######################
 Asiago = EarthLocation(lat=45.8664818*u.deg,
                        lon=11.5264273*u.deg,
@@ -35,6 +37,8 @@ Asiago = EarthLocation(lat=45.8664818*u.deg,
 lines_raw = np.genfromtxt('lines.txt', usecols=0)
 line_diff = np.diff(lines_raw)
 widths = np.zeros(len(lines_raw))
+EWs = []
+JDs = []
 
 range_start, range_end = np.genfromtxt('ranges.txt').T
 ranges = np.array([range_start,range_end]).T
@@ -64,6 +68,7 @@ for name,file in zip(names,file_ls):
     LAMBDA0, DELTA = hdr['CRVAL1'], hdr['CDELT1']
     LAMBDA_lim = hdr['UVLIM']
     year = hdr['DATE-OBS'][:4]
+    JDs.append(hdr['JD'])
 
     #the (eventually) UV-limited wavelengths array
     LAMBDA_start = max(LAMBDA_lim, LAMBDA0)
@@ -96,7 +101,6 @@ for name,file in zip(names,file_ls):
     for line_range in ranges:
         fit_region = in_range(LAMBDA, line_range)
         fit_lines = in_range(lines, line_range)
-        
 
         #total number of lines in the range
         n = np.sum(fit_lines)
@@ -144,14 +148,19 @@ for name,file in zip(names,file_ls):
             params,_ = curve_fit(profile,x,y, p0=par_guess)
         
             y_fit = profile(x, *params)
+            a,b = params[-2:]
+
+            EW = np.sum(1-(y_fit/(a+b*x)))
         
             plt.plot(x,y_fit, c='C1', lw=0.5)
-            a,b = params[-2:]
+            
             plt.plot(x,a+b*x, c='C1', lw=0.5, ls='dashed')
             plt.legend(['spectrum', 'fitted lines', 'fitted continuum'])
         except:
-            pass#print("fit failed!")
+            EW = np.nan
+            #pass#print("fit failed!")
 
+        EWs.append(EW)
         for line in lines[fit_lines]:
             plt.axvline(x=line, c='C2', alpha=.2)
           
@@ -304,3 +313,15 @@ plt.imshow(cov, extent = [bin_min,bin_max,bin_max,bin_min])
 plt.colorbar()
 plt.show()
 '''
+plt.close()
+EWs = np.reshape(EWs, (len(names), int(len(EWs)/len(names)))).T
+cm = plt.cm.Spectral(np.linspace(0, 1, len(EWs)))
+for i in range(len(EWs)):
+    plt.plot(np.asarray(JDs)-JD0, EWs[i].T, 'o', color=cm[i])
+sm = plt.cm.ScalarMappable(cmap='turbo')
+cbar = plt.colorbar(sm, ticks=[0,1])
+cbar.set_ticklabels(['bluer','redder'])
+plt.ylim(-100,20)
+plt.xlabel(f'JD-{JD0} (d)')
+plt.ylabel('EW (A)')
+plt.show()
