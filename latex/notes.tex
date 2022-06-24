@@ -102,15 +102,15 @@ Once the bkg is extraced from each frame and saved into a new one, I can develop
 I want to measure most of the spectral lines containted in sky spectra and reported in the table \texttt{tesi/lines.txt}. I particular I am interested in the equivalent width (EW). Eventually I also shall try to indentify further lines, e.g.\ the bright one at $\sim\SI{3800}{\angstrom}$. The procedure I plan to follow is the following
 \begin{itemize}
 	\item Average all the px in each column in the original 2D frame to get the bkg unidimensional spectrum.
-	\item Identify the positions of the known lines (table \texttt{lines.txt}) in the spectra. Note that due to the low resolution of the frames, some lines are totally unresolved. \arbitrario{I will consider as single unresolved lines, those with a wavelength difference lower than 1 time the pixel resolution} (which is of the order of $\sim\SI{3}{\angstrom}$).
-	\item Once identified the lines I want to fit them with some Gaussian profiles to estimate their width and thus compute the EW analitically from the best fit profile. The regions and the number of lines are choosen \textit{a priori} and are the same for all the spectra. I selected the boundaries of the fitting regions to avoid other minor lines or features that could be bias the measurements of the line or the continuum. In the table \texttt{tesi/ranges} is contained such information.
-	\item I can fit some limited areas of the spectra around the lines, and fit each of these areas with some profiles for the lines plus a polynomial (probably just linear profile) for the underlying continuum.
-	\item Currently I am trying to fit lines with voight profiles and the continuum with a degree 1 polynomial. Above an example of the result for the frame labelled as \texttt{IMA53906} (2016).
+	\item Identify the positions of the known lines (table \texttt{lines.txt}) in the spectra. Note that due to the low resolution of the frames, some lines are totally unresolved. \arbitrario{I will consider as single unresolved lines, those with a wavelength difference lower than 5 times the pixel resolution} (which is of the order of $\sim\SI{3}{\angstrom}$).
+	\item Identify the continuum below the lines by using a double median filter as done in the bkg extraction, i.e.\ by using the \texttt{wotam.flatten} function. \arbitrario{For the preliminary filtering I used a window length of $200\Delta\lambda$ (with $\Delta\lambda$ the wavelenghts size of each pixel). I used this initial function, augmented by the 30\% of the median value of the spectrum, as treshold for the data to be considered in the final detrended profile.}
+	\item I fitted the listed lines with gaussians profiles using the \href{https://specutils.readthedocs.io/en/stable/fitting.html}{\texttt{specutils.fitting.fit\_lines}} utility. Guess position of each line was the theoretical position, while \arbitrario{guess amplitude was half of the peak value of the spectrum and dispersion was fixed at \SI{5}{\angstrom}}.
+	\item EWs are computed as
+	\[ \text{EW} = \sum_i \frac{L(\lambda_i,\vec p)-C(\lambda_i)}{C(\lambda_i)}\]
+	with $L$ and $C$ respectively the fluxes of the best fit line (characterized by the params $\vec p$) and the continuum. With this definition, emission lines have positive widths.
 \end{itemize}
 
-\paragraph{Tentative results.} I computed EWs of each line as
-\[ \text{EW} = \sum_i \left( 1-\frac{V(\lambda_i,\vec p)}{a+b\lambda_i}  \right) \]
-where $V$ is the Voight profile, $\vec p$ its best fit params and $a$ and $b$ the best fit coefficients for the underlying continuum. I can plot the resulting EWs as a function of the epoch of observation, as shown below.
+\paragraph{Tentative results.} I can plot the resulting EWs as a function of the epoch of observation, as shown below.
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=.9\textwidth]{../EWs}

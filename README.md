@@ -10,9 +10,8 @@ I am going to update my work daily during the week.
 ## Roadmap
 
 ### Done (from the latest)
-- I made a tentative plot of the EWs as a function of the observation epoch. Apparently lines impact in the spectrum gets lower with the time. A Possible exmplaination is the reduction of Na/Hg lamps in favour of LEDs. ![](./EWs.png)
-- I manually selected some wavelenght ranges in which permorm the line fit over all the frames. Lines are fitted using a Voight profile and a degree 1 polynomial for the continuum.
-In the directory ``plots/fit_regions`` are saved the current fit results, which must be actually improved. ![](./prova_fit.png)
+- I computed equivalent widths (EWs) for some known lines. The underlying continuum is identified by performing a double median filter (analogous to the one for the bkg extraction), lines are fitted width gaussians profiles.
+ Apparently lines impact in the spectrum gets lower with the time. A Possible exmplaination is the reduction of Na/Hg lamps in favour of LEDs. ![](./EWs.png)
 - I tried to find correlation in the bkg spectra. In particular I checked wheter the total integrated flux correlates with the position on the celestial sphere and the positions of the Moon and the Sun
 ![](./radial.png) ![](./positions.png)
 There are no evident correlation with Sun and Moon positions (probably also due to a bat choice of params) while brightest frames seems to be those takes towars S/W direction.
