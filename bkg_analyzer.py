@@ -4,6 +4,7 @@ from scipy.signal import find_peaks, peak_widths
 from astropy.io import fits
 from astropy import units as u
 from astropy.modeling import models
+from astropy.table import Table
 from datetime import datetime
 import glob
 import os
@@ -12,12 +13,11 @@ from specutils.fitting import fit_lines
 from specutils.spectra import Spectrum1D
 ######################
 #OPTIONS
-plot_ranges = True
-save_ranges = False
 
-plot_fits = False
-save_fits = False
+plot_fits = True
+save_fits = True
 
+FITS_lines = False
 #PARAMS
 JD0 = 2450000
 ######################
@@ -29,7 +29,7 @@ widths = []
 JDs = []
 
 #browse all the *.fc.fits files in a directory and its subdirectories
-main_path = './Asiago_nightsky/2021/'
+main_path = './Asiago_nightsky/2006/'
 main_path = './'
 file_ls = glob.glob(main_path+'/**/*.fc.bkg.fits', recursive= True)
 names = [os.path.basename(x) for x in file_ls]
@@ -61,6 +61,10 @@ for name,file in zip(names,file_ls):
     close_lines = np.insert(close_lines, 0, True)
     lines = lines_raw[close_lines]
 
+    filename = './plots/widths/'+year+'_'+name[:-13]+'.l.txt'
+    f = open(filename, 'w') if FITS_lines else 0
+    f.write(f"#line\t EW") if FITS_lines else 0
+
     '''
     LINE FIT
     '''
@@ -87,6 +91,7 @@ for name,file in zip(names,file_ls):
     A = u.AA #angstrom units
     spectrum = Spectrum1D(flux=spec*u_flux, spectral_axis=LAMBDA*A)
     EWs = []
+
     for line in lines:
         line_init = models.Gaussian1D(amplitude=0.5*max(spec)*u_flux,
                                     mean=line*A,
@@ -95,15 +100,45 @@ for name,file in zip(names,file_ls):
         line_fit = fit_lines(spectrum-trend, line_init)
         y_fit = line_fit(LAMBDA*A)
 
+        plt.plot(LAMBDA, y_fit+trend*u_flux,
+                 lw=2, ls = '-', c='C1') if plot_fits else 0
+
         EW = np.sum(y_fit/(trend*u_flux))
         EWs.append(EW)
+
+        f.writelines(f"\n{line}\t {EW}") if FITS_lines else 0
+
+    plt.plot(LAMBDA, spec, lw=1, ls='-.') if plot_fits else 0
+    if (save_fits is True) and (plot_fits is True):
+        plt.savefig('./plots/line_fit/'+year+'_'+name[:-8]+'.png', dpi=500)
+    elif plot_fits is True:
+        plt.show()
+    plt.close()   
+        
+    #plt.plot(EWs, '-o')
+    f.close() if FITS_lines else 0
+
+    if FITS_lines is True:
+        #save new FIT file with with EW in a partition
+        table_hdu = fits.BinTableHDU.from_columns(
+            [fits.Column(name = 'line', array = lines, format = 'E'),
+             fits.Column(name = 'EWs', array = EWs, format = 'E')])
+
+        now = datetime.now()
+        now_str = now.strftime("%Y-%m-%d %H:%M:%S")
+        
+        hdul.append(table_hdu)
+        t_hdr = hdul[1].header
+        t_hdr.set('UNITS', 'Angstrom')
+        t_hdr.set('EWTIME', now_str, 'Time of EW computation')
         
         
-    plt.plot(EWs, '-o')
-    widths.append(EWs)
+        x = file[:-12]+'.l.bkg.fits'
+        hdul.writeto(file_new, overwrite=True)
+    
     
 
-plt.show()
+#plt.show()
 widths = np.asarray(widths)
 
 #remove bad fits
