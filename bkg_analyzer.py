@@ -19,6 +19,7 @@ save_fits = True
 
 FITS_lines = False
 #PARAMS
+line_res = 2 #x delta lambda, 
 JD0 = 2450000
 ######################
 
@@ -57,7 +58,7 @@ for name,file in zip(names,file_ls):
     spec = np.nanmean(data, axis=0)
 
     #remove blended lines, i.e. to be considered as a single feature
-    close_lines = np.where(line_diff < 5*DELTA, False, True)
+    close_lines = np.where(line_diff < line_res*DELTA, False, True)
     close_lines = np.insert(close_lines, 0, True)
     lines = lines_raw[close_lines]
 
@@ -101,14 +102,18 @@ for name,file in zip(names,file_ls):
         y_fit = line_fit(LAMBDA*A)
 
         plt.plot(LAMBDA, y_fit+trend*u_flux,
-                 lw=2, ls = '-', c='C1') if plot_fits else 0
+                 lw=0.4, ls = '-', c='C1') if plot_fits else 0
 
         EW = np.sum(y_fit/(trend*u_flux))
         EWs.append(EW)
 
         f.writelines(f"\n{line}\t {EW}") if FITS_lines else 0
 
-    plt.plot(LAMBDA, spec, lw=1, ls='-.') if plot_fits else 0
+
+    if plot_fits is True:
+        plt.plot(LAMBDA, spec, lw=0.2, ls='-.')
+        plt.xlabel('wavelenght [A]')
+        plt.ylabel('flux [erg/cm2/s/A]')
     if (save_fits is True) and (plot_fits is True):
         plt.savefig('./plots/line_fit/'+year+'_'+name[:-8]+'.png', dpi=500)
     elif plot_fits is True:

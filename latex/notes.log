@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2022.4.11)  24 JUN 2022 17:30
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2022.4.11)  27 JUN 2022 17:24
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -475,7 +475,7 @@ LaTeX Info: Redefining \nameref on input line 22.
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-<10_det.png, id=45, 375.804pt x 635.976pt>
+<10_det.png, id=53, 375.804pt x 635.976pt>
 File: 10_det.png Graphic file (type png)
 <use 10_det.png>
 Package pdftex.def Info: 10_det.png  used on input line 49.
@@ -483,85 +483,107 @@ Package pdftex.def Info: 10_det.png  used on input line 49.
 [1
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <./10_det.png>]
-<detrend_example.png, id=63, 462.528pt x 346.896pt>
+<detrend_example.png, id=71, 462.528pt x 346.896pt>
 File: detrend_example.png Graphic file (type png)
 <use detrend_example.png>
 Package pdftex.def Info: detrend_example.png  used on input line 66.
 (pdftex.def)             Requested size: 314.40001pt x 235.81204pt.
  [2 <./detrend_example.png>]
-<prova_fit.png, id=74, 462.528pt x 346.896pt>
+<prova_fit.png, id=82, 462.528pt x 346.896pt>
 File: prova_fit.png Graphic file (type png)
 <use prova_fit.png>
 Package pdftex.def Info: prova_fit.png  used on input line 100.
 (pdftex.def)             Requested size: 314.40001pt x 235.81204pt.
 
-Overfull \hbox (10.55202pt too wide) in paragraph at lines 102--103
-[]\OT1/cmr/m/n/10 I want to mea-sure most of the spec-tral lines con-tainted in
- sky spec-tra and re-ported in the ta-ble \OT1/cmtt/m/n/10 tesi/lines.txt\OT1/c
-mr/m/n/10 .
+Overfull \hbox (6.9409pt too wide) in paragraph at lines 102--103
+[]\OT1/cmr/m/n/10 I want to mea-sure most of the spec-tral lines con-tained in 
+sky spec-tra and re-ported in the ta-ble \OT1/cmtt/m/n/10 tesi/lines.txt\OT1/cm
+r/m/n/10 .
  []
 
 [3 <./prova_fit.png>]
-<../EWs.png, id=85, 1480.0896pt x 753.0534pt>
+<../EWs.png, id=93, 1158.4881pt x 681.5061pt>
 File: ../EWs.png Graphic file (type png)
 <use ../EWs.png>
-Package pdftex.def Info: ../EWs.png  used on input line 116.
-(pdftex.def)             Requested size: 435.32422pt x 221.48236pt.
-<../Figure_1.png, id=86, 462.528pt x 213.1965pt>
-File: ../Figure_1.png Graphic file (type png)
-<use ../Figure_1.png>
-Package pdftex.def Info: ../Figure_1.png  used on input line 128.
-(pdftex.def)             Requested size: 362.77264pt x 167.22298pt.
-<../radial.png, id=87, 462.528pt x 346.896pt>
-File: ../radial.png Graphic file (type png)
-<use ../radial.png>
-Package pdftex.def Info: ../radial.png  used on input line 135.
-(pdftex.def)             Requested size: 362.77264pt x 272.09163pt.
+Package pdftex.def Info: ../EWs.png  used on input line 117.
+(pdftex.def)             Requested size: 435.32422pt x 256.0841pt.
+<./2006.png, id=94, 462.528pt x 346.896pt>
+File: ./2006.png Graphic file (type png)
+<use ./2006.png>
+Package pdftex.def Info: ./2006.png  used on input line 127.
+(pdftex.def)             Requested size: 241.84843pt x 181.38736pt.
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[4 <../EWs.png> <../Figure_1.png>]
-<../positions.png, id=97, 462.528pt x 346.896pt>
+[4 <../EWs.png>]
+<./2012.png, id=104, 29.05254pt x 38.3031pt>
+File: ./2012.png Graphic file (type png)
+<use ./2012.png>
+Package pdftex.def Info: ./2012.png  used on input line 148.
+(pdftex.def)             Requested size: 72.55157pt x 95.6704pt.
+<../Figure_1.png, id=105, 462.528pt x 213.1965pt>
+File: ../Figure_1.png Graphic file (type png)
+<use ../Figure_1.png>
+Package pdftex.def Info: ../Figure_1.png  used on input line 161.
+(pdftex.def)             Requested size: 362.77264pt x 167.22298pt.
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+<../radial.png, id=106, 462.528pt x 346.896pt>
+File: ../radial.png Graphic file (type png)
+<use ../radial.png>
+Package pdftex.def Info: ../radial.png  used on input line 168.
+(pdftex.def)             Requested size: 362.77264pt x 272.09163pt.
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+<../positions.png, id=107, 462.528pt x 346.896pt>
 File: ../positions.png Graphic file (type png)
 <use ../positions.png>
-Package pdftex.def Info: ../positions.png  used on input line 143.
+Package pdftex.def Info: ../positions.png  used on input line 176.
 (pdftex.def)             Requested size: 362.77264pt x 272.09163pt.
-<../covariance.png, id=98, 778.3479pt x 659.1024pt>
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[5 <./2006.png> <./2012.png>]
+<../covariance.png, id=121, 778.3479pt x 659.1024pt>
 File: ../covariance.png Graphic file (type png)
 <use ../covariance.png>
-Package pdftex.def Info: ../covariance.png  used on input line 150.
+Package pdftex.def Info: ../covariance.png  used on input line 183.
 (pdftex.def)             Requested size: 362.77264pt x 307.1935pt.
- [5 <../radial.png> <../positions.png>]
-[6 <../covariance.png>]
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[6 <../Figure_1.png> <../radial.png>]
 Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on i
-nput line 156.
- (../bkg_extractor.py
+nput line 189.
+ (../bkg_extractor.py [7 <../positions.png> <../covariance.png>]
 LaTeX Font Info:    Trying to load font information for TS1+cmss on input line 
 29.
-
-(/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmss.fd
+ (/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmss.fd
 File: ts1cmss.fd 2019/12/16 v2.5j Standard LaTeX font definitions
-) [7] [8] [9])
-(../bkg_analyzer.py [10] [11])
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 160.
- [12]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 160.
+) [8] [9] [10]) (../bkg_analyzer.py [11] [12])
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 193.
+ [13]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 193.
  (./notes.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 160.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 160.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 193.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 193.
 Package rerunfilecheck Info: File `notes.out' has not changed.
-(rerunfilecheck)             Checksum: 36A9E0EE05A12ADB4961F6AE7408F3F6;647.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 160.
+(rerunfilecheck)             Checksum: 46059025DEFB6FEB6A1C0B0FCB22807E;800.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 193.
  ) 
 Here is how much of TeX's memory you used:
- 11985 strings out of 481239
- 211767 string characters out of 5920377
- 873015 words of memory out of 5000000
- 26646 multiletter control sequences out of 15000+600000
+ 12064 strings out of 481239
+ 212866 string characters out of 5920377
+ 882015 words of memory out of 5000000
+ 26674 multiletter control sequences out of 15000+600000
  541217 words of font info for 57 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 35i,11n,45p,598b,2461s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 35i,11n,45p,598b,2520s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-ts1.enc}</usr/share/texli
 ve/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/texlive/tex
 mf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texlive/texmf-dis
@@ -578,10 +600,10 @@ e/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/share/texlive/texm
 f-dist/fonts/type1/public/amsfonts/cm/cmtt8.pfb></usr/share/texmf/fonts/type1/p
 ublic/cm-super/sfrm1000.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfss0
 800.pfb>
-Output written on notes.pdf (12 pages, 922204 bytes).
+Output written on notes.pdf (13 pages, 1242384 bytes).
 PDF statistics:
- 700 PDF objects out of 1000 (max. 8388607)
- 647 compressed objects within 7 object streams
- 440 named destinations out of 1000 (max. 500000)
- 121 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 773 PDF objects out of 1000 (max. 8388607)
+ 714 compressed objects within 8 object streams
+ 489 named destinations out of 1000 (max. 500000)
+ 147 words of extra memory for PDF output out of 10000 (max. 10000000)
 
