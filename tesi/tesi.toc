@@ -1,0 +1,26 @@
+\contentsline {chapter}{\numberline {1}Introduction}{5}
+\contentsline {section}{\numberline {1.1}Light pollution}{6}
+\contentsline {paragraph}{Effects on the human health.}{6}
+\contentsline {paragraph}{Effects on the environment.}{6}
+\contentsline {paragraph}{Economical effects.}{6}
+\contentsline {paragraph}{Cultural effects.}{6}
+\contentsline {paragraph}{Scientific effects.}{6}
+\contentsline {section}{\numberline {1.2}Aim of the work}{7}
+\contentsline {chapter}{\numberline {2}The natural sky background}{9}
+\contentsline {section}{\numberline {2.1}Extraterrestrial sources}{9}
+\contentsline {subsection}{\numberline {2.1.1}Zodiacal light}{9}
+\contentsline {paragraph}{Spatial distribution.}{9}
+\contentsline {paragraph}{Observability.}{9}
+\contentsline {paragraph}{Spectral energy distribution.}{9}
+\contentsline {subsection}{\numberline {2.1.2}Galactic background}{9}
+\contentsline {paragraph}{Angular distribution.}{10}
+\contentsline {subsection}{\numberline {2.1.3}Interstellar dust scattering.}{10}
+\contentsline {subsection}{\numberline {2.1.4}Extragalactic background}{10}
+\contentsline {section}{\numberline {2.2}Terrestrial sources}{10}
+\contentsline {subsection}{\numberline {2.2.1}Airglow}{10}
+\contentsline {paragraph}{Main mechanisms.}{10}
+\contentsline {paragraph}{Geographical and temporal distribution.}{10}
+\contentsline {paragraph}{Spectrum.}{10}
+\contentsline {subsection}{\numberline {2.2.2}Aurorae}{10}
+\contentsline {subsection}{\numberline {2.2.3}Presence of clouds}{10}
+\contentsline {section}{\numberline {2.3}Lunar and solar light}{11}

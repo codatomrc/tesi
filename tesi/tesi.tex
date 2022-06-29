@@ -1,0 +1,121 @@
+\documentclass{book}
+
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+\usepackage{siunitx}
+
+\title{Light pollution in Asiago: a spectroscopic perspective}
+\author{Marco Codato}
+\date{Master Thesis in Astrophysics and Cosmology}
+
+\begin{document}
+\maketitle
+
+\newpage
+\begin{center}
+	\textbf{Abstract}\\
+	Modern sky brightness monitoring techniques aim to precisely measure the total amount of radiation from the observing site but very little can be said about the various sources responsible for such radiation.
+	In this work I will use spectroscopic data to identify the various sources in the sky of the Asiago Observatory, Italy, and study their temporal evolution.
+\end{center}
+
+\tableofcontents
+
+\chapter{Introduction}
+Part I: Sky sources in theory
+\begin{itemize}
+	\item Introduction
+		\subitem General introduction
+		\subitem Aim of the work
+		\subitem About the methodologies
+	\item The natural sky
+		\subitem Main natural sources
+		\subitem And their footprint on spectra
+	\item The light pollution
+		\subitem Definitions and aftermaths
+		\subitem Mechanism of working
+		\subitem Mention to the models in the literature
+		\subitem LP footprint in spectra
+\end{itemize}
+Part II: Analysis of sky background in spectra
+\begin{itemize}
+	\item Software description
+		\subitem Bkg extraction
+		\subitem Bkg analysis
+	\item Results
+	\item Discussion and interpretation of the results
+	\item Conclusions
+\end{itemize}
+
+\section{Light pollution}
+Light pollution (LP) is the alteration of the natural light level due to artificial sources. The resulting increase of the sky brightness has many proven negative effects.
+
+\paragraph{Effects on the human health.} Light exposure in nigh time decrease the natural production melatonin. The effect is proportional to the frequency of light, with bluer radiation producing a stronger decrease of melatonin production.
+	
+Melatonin is an important hormone that regulates many biological mechanism. It is capable of prevent some forms of cancer and is responsible of the sleep regulation. A melatonin deficiency has been proven to be correlated with higher chances of developing breast and prostate cancers and a decrease of sleep time and quality, which typically lead to further health disorders.
+	
+Melatonin decrease is proportional both to light intensity and frequency. A greater effect is given by brighter and bluer sources. In this context the spreading of LED lights, with their strong emissions in the blue side of visible spectrum, is considered a concern by many health associations.
+
+\paragraph{Effects on the environment.} LP affects other living beings as well as humans. Animals exposed to abnormal level of light at night change their behaviour and habits. Note this form of pollution is probably the most widespread but yet one of the least acknowledged.
+
+\paragraph{Economical effects.} When looking at a artificially bright sky one should consider that such photons that brighten the sky are no longer being used for the purpose they were made for, i.e.\ lighten streets, houses, commercial areas and so on. The energy, and thus the cost, to produce such photons is wasted. 
+
+Unluckily in the last years efficient light sources like LEDs allowed to produce powerful lighting systems at low cost making the economical argument less relevant. Since light is cheaper, it is less critical weather part of it is lost toward the sky.
+
+\paragraph{Cultural effects.} All the cultures around the world developed myths and legends involving the heavens; night sky inspired artists and philosophers in western cultures for centuries and in general the observation of a starry sky always belonged to the human experiences. Today due to LP FabbriXX estimates that at least the XX\% of the world population lives in areas where milky way is not even visible and only a handful of bright stars can stand out of the polluted sky. In terms of traditions and human experience this is a great loss, but yet difficult, or impossible, to quantify.
+
+\paragraph{Scientific effects.} Of course the increase of sky brightness made astronomical observations more difficult. Observation sites moved from the town centres in the XIX century to the rural areas due to the introduction of the first lighting. With the growing urbanization, many of these sites ended up to by at the limb of the expanding urban areas, heavily limiting the possibility of relevant scientific activities. Nowadays it is likely that in a country no totally dark sites are available, forcing astronomers to build new instruments in very remote areas in poorly populated areas of the world.
+
+A typical example of the effects in the changing of the sky condition is the Asiago observatory. It was built in 1942 in a poorly populated highland, which also offered an adequate shielding from the light of the yet small rural centres in the nearby pianura veneta. When built, the observatory also hosted the largest reflecting telescope in the Europe (Gaileo telescope, 122\,m of diameter).
+With the economic boom in the 50s, industrial and manufacturing activities replaced agriculture in the Veneto flatland. Urban areas significantly expanded making Veneto region one of the most light polluted sites in the whole Europe. At the same time the Asiago highland become one of the most appreciated touristic destination in the surrounding area. The quality of the sky rapidly worsened also with respect to other nearby areas less touched by human activities. In such new condition the Asiago Observatory lost its central role in research activities tough preserving its nature of scientific pole.
+
+\section{Aim of the work}
+For all the issues above measuring and monitoring the LP is of crucial important. 
+
+\chapter{The natural sky background}
+Even when artificial sources are neglected, there still several natural background sources. In this chapter each contribution will be described in detail.
+
+\section{Extraterrestrial sources}
+
+\subsection{Zodiacal light}
+This emission is due to the scattering of the solar light on the dust particles spread across the solar system. From the Earth it looks like a white glow visible during the twilight and extending from the Sun in the zodiacal region.
+
+\paragraph{Spatial distribution.} The intensity of the scattering is maximum along the ecliptic and minimum at the ecliptic poles, while azimuthally is is maximum around the sun position; another local maximum, known as \emph{gegenschein}, can be observed in the anti-solar position and is due to the back-scattering effect.
+
+\paragraph{Observability.} Due to its intrinsic angular distribution zodiacal light has its maximum effect during the twilight, after sunset in spring or before sunrise in autumn, from the northern hemisphere.
+
+\paragraph{Spectral energy distribution.} Being essentially reflected sunlight, the zodiacal light energy distribution has the same shape of the solar one.
+
+\subsection{Galactic background}
+In optical bands a significant contribution to the background level is provided by unresolved stars in the Galaxy. At naked eye the Galaxy appears like a glowing band. According to the instrument used part of this glowing may be resolved into single stars while faintest objects remain unresolved.
+
+\paragraph{Angular distribution.} The maximum of the galactic emission is located within the first \ang{00} from the galactic disk, with a local minimum on the disk (null galactic latitude) due to the strong dust extinction. Similarly maximum emission is observable toward the galactic centre. The entity of the background follows the morphological features of the galaxy.
+
+\subsection{Interstellar dust scattering.}
+Interstellar dust scattering light makes a faint but yet measurable optical background, with the same spatial structure of the zodiacal light.
+
+\subsection{Extragalactic background}
+A much smaller contribution is led by the extragalactic background, i.e.\ emission of faint and or unresolved galaxies. Cosmological effects like red-shift and its relation with the luminosity distance makes the object surface brightness drop very fast when leaving the local universe. For these reasons Extragalactic continuum is extremely faint and probably negligible in most of the cases.
+
+\section{Terrestrial sources}
+
+\subsection{Airglow}
+The airglow is the faint emission on the higher layers of the atmosphere, due to the interaction between atoms and the particles from the solar wind.
+
+\paragraph{Main mechanisms.}
+
+\paragraph{Geographical and temporal distribution.} The airglow intensity varies with the latitude: is maximum in the subpolar (magnetosphere at lower altitude) and in the equatorial region (highest solar exposition) while present a minimum in the temperate region.
+
+Airglow varies in the time following closely the solar activity variations.
+
+\paragraph{Spectrum.} The typical aspect of airglow in a spectrogram is a series of emission lines, typical of the element that produced the transitions.
+
+\subsection{Aurorae}
+Similar to the airglow for its formation mechanism, aurorae are bright, rapidly-changing coloured bands observable in the polar regions.
+
+\subsection{Presence of clouds}
+The presence of cloud veils typically increases the natural sky level.
+
+\section{Lunar and solar light}
+
+
+\end{document}
