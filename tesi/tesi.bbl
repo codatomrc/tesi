@@ -1,0 +1,28 @@
+\newcommand{\etalchar}[1]{$^{#1}$}
+\begin{thebibliography}{LBH{\etalchar{+}}98}
+
+\bibitem[Eat69]{eather1969latitudinal}
+RH~Eather.
+\newblock Latitudinal distribution of auroral and airglow emissions: The
+  ‘soft’auroral zone.
+\newblock {\em Journal of Geophysical Research}, 74(1):153--158, 1969.
+
+\bibitem[FHLT74]{frey1974photometry}
+A~Frey, W~Hofmann, D~Lemke, and C~Thum.
+\newblock Photometry of the zodiacal light with the balloon-borne telescope
+  thisbe.
+\newblock {\em Astronomy and Astrophysics}, 36:447--454, 1974.
+
+\bibitem[LBH{\etalchar{+}}98]{leinert19981997}
+Ch~Leinert, S~Bowyer, LK~Haikala, MS~Hanner, MG~Hauser, A-Ch Levasseur-Regourd,
+  I~Mann, K~Mattila, WT~Reach, W~Schlosser, et~al.
+\newblock The 1997 reference of diffuse night sky brightness.
+\newblock {\em Astronomy and Astrophysics Supplement Series}, 127(1):1--99,
+  1998.
+
+\bibitem[Lei75]{leinert1975zodiacal}
+Christoph Leinert.
+\newblock Zodiacal light—a measure of the interplanetary environment.
+\newblock {\em Space Science Reviews}, 18(3):281--339, 1975.
+
+\end{thebibliography}

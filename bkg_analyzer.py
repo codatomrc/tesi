@@ -14,8 +14,8 @@ from specutils.spectra import Spectrum1D
 ######################
 #OPTIONS
 
-plot_fits = True
-save_fits = True
+plot_fits = False
+save_fits = False
 
 FITS_lines = False
 #PARAMS
@@ -106,9 +106,16 @@ for name,file in zip(names,file_ls):
 
         EW = np.sum(y_fit/(trend*u_flux))
         EWs.append(EW)
+   
+    # for groups of lines the same EW is given to all the components
+    EW_array = np.zeros(np.shape(lines_raw))
+    EW_array[~close_lines] = np.nan #grouped lines
+    EW_array[close_lines] = EWs
+    for i,EW in enumerate(EW_array):
+        if np.isnan(EW):
+            EW_array[i] = EW_array[i-1]
 
-        f.writelines(f"\n{line}\t {EW}") if FITS_lines else 0
-
+        f.writelines(f"\n{lines_raw[i]}\t {EW_array[i]}") if FITS_lines else 0
 
     if plot_fits is True:
         plt.plot(LAMBDA, spec, lw=0.2, ls='-.')
@@ -126,8 +133,9 @@ for name,file in zip(names,file_ls):
     if FITS_lines is True:
         #save new FIT file with with EW in a partition
         table_hdu = fits.BinTableHDU.from_columns(
-            [fits.Column(name = 'line', array = lines, format = 'E'),
-             fits.Column(name = 'EWs', array = EWs, format = 'E')])
+            [fits.Column(name = 'line', array = lines_raw, format = 'E'),
+             fits.Column(name = 'EWs', array = EW_array, format = 'E'),
+             fits.Column(name = 'IsIsolated', array = close_lines, format = 'L' )])
 
         now = datetime.now()
         now_str = now.strftime("%Y-%m-%d %H:%M:%S")
@@ -136,9 +144,10 @@ for name,file in zip(names,file_ls):
         t_hdr = hdul[1].header
         t_hdr.set('UNITS', 'Angstrom')
         t_hdr.set('EWTIME', now_str, 'Time of EW computation')
+        t_hdr.set('LINERES', now_str, 'Min dist btw lines, in DELTA units')
         
         
-        x = file[:-12]+'.l.bkg.fits'
+        file_new = file[:-12]+'.l.bkg.fits'
         hdul.writeto(file_new, overwrite=True)
     
     
