@@ -12,9 +12,8 @@ I am going to update my work daily during the week.
 ### Done (from the latest)
 - Now EW are saved into a table partition of the original .FITS file.
 - I computed equivalent widths (EWs) for some known lines. The underlying continuum is identified by performing a double median filter (analogous to the one for the bkg extraction), lines are fitted width gaussians profiles.
- Apparently lines impact in the spectrum gets lower with the time. A Possible exmplaination is the reduction of Na/Hg lamps in favour of LEDs. ![](./EWs.png)
-- I tried to find correlation in the bkg spectra. In particular I checked wheter the total integrated flux correlates with the position on the celestial sphere and the positions of the Moon and the Sun
-![](./radial.png) ![](./positions.png)
+ Apparently lines impact in the spectrum gets lower with the time, while as expected telluric lines remains approximatively constants. A Possible exmplaination is the reduction of Na/Hg lamps in favour of LEDs. ![](./plots/line_changes/Hg_lines.png) ![](./plots/line_changes/Na_lines.png) ![](./plots/line_changes/OI_lines.png)
+- I tried to find correlation in the bkg spectra. In particular I checked wheter the total integrated flux correlates with the position on the celestial sphere and the positions of the Moon and the Sun.
 There are no evident correlation with Sun and Moon positions (probably also due to a bat choice of params) while brightest frames seems to be those takes towars S/W direction.
 - **Bkg extraction**. I wrote a script that automatically read and process all the files in a directory.
 For each file a preliminary cosmic ray and noise clening is performed. After that all the astronomical sources are detected by looking at the luminosity profile along the slit (wavelength integration).

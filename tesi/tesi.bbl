@@ -13,6 +13,12 @@ A~Frey, W~Hofmann, D~Lemke, and C~Thum.
   thisbe.
 \newblock {\em Astronomy and Astrophysics}, 36:447--454, 1974.
 
+\bibitem[KS91]{krisciunas1991model}
+Kevin Krisciunas and Bradley~E Schaefer.
+\newblock A model of the brightness of moonlight.
+\newblock {\em Publications of the Astronomical Society of the Pacific},
+  103(667):1033, 1991.
+
 \bibitem[LBH{\etalchar{+}}98]{leinert19981997}
 Ch~Leinert, S~Bowyer, LK~Haikala, MS~Hanner, MG~Hauser, A-Ch Levasseur-Regourd,
   I~Mann, K~Mattila, WT~Reach, W~Schlosser, et~al.

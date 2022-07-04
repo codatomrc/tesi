@@ -14,10 +14,10 @@ from specutils.spectra import Spectrum1D
 ######################
 #OPTIONS
 
-plot_fits = False
-save_fits = False
+plot_fits = True
+save_fits = True
 
-FITS_lines = False
+FITS_lines = True
 #PARAMS
 line_res = 2 #x delta lambda, 
 JD0 = 2450000
@@ -147,7 +147,7 @@ for name,file in zip(names,file_ls):
         t_hdr.set('LINERES', now_str, 'Min dist btw lines, in DELTA units')
         
         
-        file_new = file[:-12]+'.l.bkg.fits'
+        file_new = file[:-12]+'.l.fits'
         hdul.writeto(file_new, overwrite=True)
     
     
