@@ -1,16 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.signal import find_peaks, peak_widths
 from astropy.io import fits
 from astropy import units as u
-from astropy.modeling import models
 from astropy.table import Table
 from datetime import datetime
 import glob
 import os
-from wotan import flatten
-from specutils.fitting import fit_lines
-from specutils.spectra import Spectrum1D
 ######################
 #OPTIONS
 
@@ -23,10 +18,9 @@ line_res = 2 #x delta lambda,
 JD0 = 2450000
 ######################
 
-# import lines table
-lines_raw = np.genfromtxt('lines.txt', usecols=0)
-line_diff = np.diff(lines_raw)
-widths = []
+blue_cont = []
+HPS_cont = []
+ctr_cont = []
 
 #browse all the *.fc.fits files in a directory and its subdirectories
 main_path = './Asiago_nightsky/2006/'
@@ -43,7 +37,7 @@ for i,file in enumerate(file_ls):
 
     #load the frame
     hdul = fits.open(file)
-    hdr, data = hdul[0].header, hdul[0].data
+    hdr = hdul[0].header
 
     #take wavelength info from the hdr
     year = hdr['DATE-OBS'][:4]
@@ -55,6 +49,32 @@ for i,file in enumerate(file_ls):
     for j,line_tuple in enumerate(line_widths):
         data_array[i+1,j+1] = line_tuple[1]
         data_array[0,j+1] = line_tuple[0]
+
+    continuum_data = hdul[2].data
+
+    #HPS lamp continuum
+    cont_val = 0
+    for datum in continuum_data:
+        if datum[0] >= 5600 and datum[0] <= 6500:
+            cont_val += datum[1]
+    HPS_cont.append(cont_val)
+
+    #blue continuum
+    cont_val = 0
+    for datum in continuum_data:
+        if datum[0] >= 4200 and datum[0] <= 4800:
+            cont_val += datum[1]
+    blue_cont.append(cont_val)
+
+    #control band continuum
+    cont_val = 0
+    for datum in continuum_data:
+        if datum[0] >= 7000 and datum[0] <= 8000:
+            cont_val += datum[1]
+    ctr_cont.append(cont_val)
+
+    
+            
 
 '''
 PLOT INTERESTING LINES
@@ -104,3 +124,28 @@ plt.xlabel(f'epoch-{JD0} [JD]')
 plt.ylabel('EW [A]')
 plt.legend()
 plt.show()
+
+#continuums
+norm_blue = np.asarray(blue_cont)/np.asarray(ctr_cont)
+norm_HPS = np.asarray(HPS_cont)/np.asarray(ctr_cont)
+
+plt.title('LED blue continuum')
+plt.plot(x[order]-JD0, norm_blue[order])
+plt.xlabel(f'epoch-{JD0} [JD]')
+plt.ylabel('normalized flux')
+plt.show()
+
+plt.title('HPS lamps continuum')
+plt.plot(x[order]-JD0, norm_HPS[order], c='C1')
+plt.xlabel(f'epoch-{JD0} [JD]')
+plt.ylabel('normalized flux')
+plt.show()
+
+#ratio
+plt.title('HPS/blue continuums (the higher the redder)')
+plt.plot(x[order]-JD0, norm_HPS[order]/norm_blue[order])
+plt.axhline(y=1, ls='--', c='gray')
+plt.xlabel(f'epoch-{JD0} [JD]')
+plt.ylabel('normalized flux')
+plt.show()
+

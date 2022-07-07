@@ -145,8 +145,14 @@ for name,file in zip(names,file_ls):
         t_hdr.set('UNITS', 'Angstrom')
         t_hdr.set('EWTIME', now_str, 'Time of EW computation')
         t_hdr.set('LINERES', now_str, 'Min dist btw lines, in DELTA units')
-        
-        
+
+        #save the contimuum in a new partition too
+        table_hdu = fits.BinTableHDU.from_columns(
+            [fits.Column(name = 'LAMBDA', array = LAMBDA, format = 'E'),
+             fits.Column(name = 'flux', array = trend, format = 'E')])
+        hdul.append(table_hdu)
+
+        #save the .FITS file
         file_new = file[:-12]+'.l.fits'
         hdul.writeto(file_new, overwrite=True)
     
