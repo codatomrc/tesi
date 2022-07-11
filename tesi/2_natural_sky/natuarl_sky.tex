@@ -5,13 +5,15 @@ Even when artificial sources are neglected, there are still several natural back
 	\includegraphics[width=.7\textwidth]{./2_natural_sky/natural_sources}
 	\caption{Different sky brightness contributions in different electromagnetic domains. In the optical band most relevant contribution ar Airglow, zodiacal light and faint stars. From \cite{leinert19981997}.\label{fig:natural_sources}}
 \end{figure}
-For clarity I will distinguish between extraterrestrial sources from the terrestrial or atmospheric ones. At the end of the chapter I will also discuss about the contribution on the sky background due to atmospheric scattering effects.
 
-Quantitatively the total sky brightness can be expressed as
-\begin{equation}
-	I_\text{sky} = (I_A+I_{ZL}+I_{ISL}+I_{DGL}+I_{EBL})e^{-\tau}+I_\text{sca}
+Photons produced by several background sources interact with dusts and aerosols in the Earth atmosphere leading to extinction and diffusion (scattering) phenomena. The total sky brightness can be quantitatively expressed as
+\begin{equation}\label{eq:I_tot}
+I_\text{sky} = (I_A+I_{ZL}+I_{ISL}+I_{DGL}+I_{EBL})e^{-\tau}+I_\text{sca}
 \end{equation}
 where A stands for airglow, EZ is zodiacal light, ISL integrated galactic light, DGL diffuse galactic light and EBL extragalactic background light. $\tau$ is the extinction coefficients and $I_\text{sca}$ gathers all the scattering terms, i.e.\ light scattered from previous sources and from light pollution, from \cite{leinert19981997}.
+
+\medskip
+In this chapter I will analyze in detail all the terms of the equation \eqref{eq:I_tot}, their origin and the relevance and characteristic spectral features. At the end I will show and discuss some examples of sky background spectra taken from the literature.
 
 
 \section{Extraterrestrial sources}
@@ -77,22 +79,37 @@ The occurrence and intensity of this phenomenon is strictly regulated by the sol
 
 
 \section{Atmospheric scattering}
-Atmospheric scattering refers to the interaction of light with aerosol particles in the atmosphere. Unlike reflection or refraction, when a light beam get scattered its photons are deflected in random directions. In the Earth atmosphere the main aerosol particles are XXXXX.
+Atmospheric scattering refers to the interaction of light with aerosol particles in the atmosphere. Unlike reflection or refraction, when a light beam get scattered its photons are deflected in random directions. Note scattering is somehow the complementary of extinction: when a light beam is dimmed due to extinction it means that part of its photons has been deflected (thus scattered) away from the beam direction. Extinction occurs when looking directly at a light source, while scattering is the diffuse radiation around the source.
 
 \subsection{Scattering mechanisms}
 There are two main scattering mechanism, depending on the size of the particle with respect to the wavelength of the incident radiation: Mie and Rayleigh scattering.
 
-\paragraph{Mie scattering.}
+\paragraph{Rayleigh scattering.} This is due to the interaction of light with particles smaller that the wavelength: if the particle is small enough the phase difference of the beam along the particle is negligible and the it ``sees'' in each moment an homogeneous electromagnetic field. The particle will be forced by the beam to emit as an oscillating dipole, in phase with the beam and with the same wavelength, but in a random direction. From the dipole theory, when a light beam of intensity $I_0$ travels trough a medium, meeting $N$ particles of polarizability $\alpha$, the scattered intensity of the beam is
+\begin{equation}
+	I = I_0 \frac{8\pi^4 N\alpha}{R^2} \frac{1+\cos^2\varphi}{\lambda^4}
+\end{equation}
+where $\lambda$ is the wavelength of the radiation and $\varphi$ the angle between the beam and the observing direction. Note that it steadily decreases at increasing wavelengths ($\propto\lambda^{-4}$), i.e.\ Rayleigh scattering is stronger in the blue than in the red bands. Concerning the angular distribution of scattered light, the intensity is maximum both along the original beam direction (\emph{forward scattering}) as well as in the opposite direction, back to the source (\emph{back scattering}). Minima are located at \ang{90} from the maxima.
 
-\paragraph{Rayleigh scattering.}
+In the optical regime, Rayleigh scattering is produced by the air molecules themselves. This form of scattering is responsible for the blue sky in daytime and for twilight. It is also the main responsible for atmospheric extinction, in particular at shorter wavelengths.
+
+\paragraph{Mie scattering.} Mie scattering occurs when light meets particles of size comparable or larger than the characteristic wavelength. In this case different parts of the particle experience different intensities of the electromagnetic field; each portion of the particle will emit as a single dipole, locally in phase with the beam, and the total emission will be the result of the interference pattern between all the portion of the particle. In this case only the wavelength of the original beam is preserved, while phase is distorted and direction is random. The numerical expression of Mie scattering is rather complex and involves the solution of Maxwell equation; several numerical or empirical relation are available in the literature. For our purposes it is relevant to say that the intensity of Mie scattering is proportional to $\propto\lambda^{-0.8}$. Moreover, most of the light is scattered along or close to the beam direction, i.e.\ the forward component is dominant (the larger the particle, the more relevant the forward component).
+
+In the atmosphere Mie scattering is produced by solid particles suspended in the air (\emph{aerosols}), such as dust grains, smoke or water drops. In the figure \ref{fig:scattering_sources}, from \cite{tug1977vertical}, are reported the extinction coefficients, a proxy the total scattered light, for Rayleigh and Mie scattering (the latter labelled as ``aerosols''). It is clear that Mie scattering is negligible with respect to Rayleigh one, in particular at shorter wavelengths. This is true only in clear sky conditions, with an atmosphere locally without fog, smoke or other pollutants, that may significantly rise the impact of Mie scattering.
+\begin{figure}
+	\centering
+	\includegraphics[width=.65\textwidth]{./2_natural_sky/scattering_sources}
+	\caption{Extinction coefficients for Rayleigh and aerosol (Mie) scattering. The former component dominates over the latter at all the wavelengths, in particular for shorter ones. From \cite{tug1977vertical}.\label{fig:scattering_sources}}
+\end{figure}
+
+Note that to the Ozone extinction component in the figure \ref{fig:scattering_sources} does not correspond any scattered component since it is produced by molecular absorption. In this case the radiation absorbed, instead of being re-emitted, is used to increase the kinetic energy of each ozone molecule, heating the ozone layer. This process is responsible for the temperature gradient inversion in the stratosphere.
 
 \subsection{Effects on the sky brightness}
 Every light source is responsible for a certain amount of light scattering. Depending on the site and the observation time, the effects of scattering on the total sky brightness can vary significantly.
 
-\paragraph{Dark sites.} In a dark site most of the scattered light is produced by airglow, zodiacal light and the galactic background, i.e.\ the brightest ``direct'' light sources. According to \cite{leinert19981997} scattered light from the natural sources accounts for a brightness of the order of \num{e-8} to \SI{e-7}{erg\per\second \per\centi\metre\squared \per\steradian\per\angstrom}.
+\paragraph{Dark clear sites.} In a dark site most of the scattered light is produced by airglow, zodiacal light and the galactic background, i.e.\ the brightest ``direct'' light sources. According to \cite{leinert19981997} scattered light from the natural sources accounts for a brightness of the order of \num{e-8} to \SI{e-7}{erg\per\second \per\centi\metre\squared \per\steradian\per\angstrom}.
 
 \paragraph{Light polluted sites.} Atmospheric light scattering is the main mechanism responsible for light pollution when far from the light source. Due to Earth curvature, geographic features and atmospheric extinction the direct light contribute to pollution only when very close to the light source. As reported in the chapter XX, brightness of scattered artificial light from a city varies with the population and the distance.
 
-\paragraph{Scattered sunlight and moonlight.} Scattering is responsible for the twilight: even if the Sun is below the horizon some residual scattered light still brightens the sky. Conventionally astronomical twilight ends when the sun is \ang{18} below the horizon and other light sources, such as zodiacal light, becomes more relevant.
+\paragraph{Scattered sunlight and moonlight.} As said before Rayleigh scattering is responsible for the twilight: even if the Sun is below the horizon some residual scattered light still brightens the sky. Conventionally astronomical twilight ends when the sun is \ang{18} below the horizon and other light sources, such as zodiacal light, becomes more relevant.
 
 A similar effect is provided by scattered moonlight. Such light brightness depends on the lunar phase and on the distance between the Moon and the observing position in the sky. According to \cite{krisciunas1991model} and similar sources, in optical bands scattered moonlight can lead to an increase of the sky brightness of the order of \SI{5}{mag\per {arcsec}\squared}.

@@ -12,7 +12,7 @@
 \contentsline {subsection}{\numberline {2.1.1}Zodiacal light}{9}{subsection.2.1.1}%
 \contentsline {paragraph}{Angular distribution.}{9}{section*.9}%
 \contentsline {paragraph}{Spectral energy distribution.}{9}{section*.11}%
-\contentsline {subsection}{\numberline {2.1.2}Galactic background}{9}{subsection.2.1.2}%
+\contentsline {subsection}{\numberline {2.1.2}Galactic background}{11}{subsection.2.1.2}%
 \contentsline {paragraph}{Angular distribution.}{11}{section*.12}%
 \contentsline {subsection}{\numberline {2.1.3}Diffuse galactic light}{11}{subsection.2.1.3}%
 \contentsline {subsection}{\numberline {2.1.4}Extragalactic background}{11}{subsection.2.1.4}%
@@ -23,9 +23,9 @@
 \contentsline {subsection}{\numberline {2.2.2}Aurorae}{12}{subsection.2.2.2}%
 \contentsline {section}{\numberline {2.3}Atmospheric scattering}{13}{section.2.3}%
 \contentsline {subsection}{\numberline {2.3.1}Scattering mechanisms}{13}{subsection.2.3.1}%
-\contentsline {paragraph}{Mie scattering.}{13}{section*.17}%
-\contentsline {paragraph}{Rayleigh scattering.}{13}{section*.18}%
-\contentsline {subsection}{\numberline {2.3.2}Effects on the sky brightness}{13}{subsection.2.3.2}%
-\contentsline {paragraph}{Dark sites.}{13}{section*.19}%
-\contentsline {paragraph}{Light polluted sites.}{13}{section*.20}%
-\contentsline {paragraph}{Scattered sunlight and moonlight.}{13}{section*.21}%
+\contentsline {paragraph}{Rayleigh scattering.}{13}{section*.17}%
+\contentsline {paragraph}{Mie scattering.}{14}{section*.18}%
+\contentsline {subsection}{\numberline {2.3.2}Effects on the sky brightness}{14}{subsection.2.3.2}%
+\contentsline {paragraph}{Dark sites.}{14}{section*.20}%
+\contentsline {paragraph}{Light polluted sites.}{15}{section*.21}%
+\contentsline {paragraph}{Scattered sunlight and moonlight.}{15}{section*.22}%
