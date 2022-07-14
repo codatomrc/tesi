@@ -26,6 +26,6 @@
 \contentsline {paragraph}{Rayleigh scattering.}{13}{section*.17}%
 \contentsline {paragraph}{Mie scattering.}{14}{section*.18}%
 \contentsline {subsection}{\numberline {2.3.2}Effects on the sky brightness}{14}{subsection.2.3.2}%
-\contentsline {paragraph}{Dark sites.}{14}{section*.20}%
+\contentsline {paragraph}{Dark clear sites.}{14}{section*.20}%
 \contentsline {paragraph}{Light polluted sites.}{15}{section*.21}%
 \contentsline {paragraph}{Scattered sunlight and moonlight.}{15}{section*.22}%

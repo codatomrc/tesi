@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.signal import find_peaks, peak_widths
+from scipy.signal import find_peaks, peak_widths, savgol_filter
+from scipy.interpolate import UnivariateSpline, interp1d
 from astropy.io import fits
 from astropy import units as u
 from astropy.modeling import models
@@ -14,24 +15,29 @@ from specutils.spectra import Spectrum1D
 ######################
 #OPTIONS
 
-plot_fits = True
-save_fits = True
+plot_fits = False
+save_fits = False
 
-FITS_lines = True
+save_cont = False
+
+FITS_lines = False
 #PARAMS
-line_res = 2 #x delta lambda, 
+line_res = 3 #x delta lambda, min distance to consider lines as unresolved
 JD0 = 2450000
+line_window = 10 #DELTA units when finding lines to be masked to estimate continuum
 ######################
 
 # import lines table
 lines_raw = np.genfromtxt('lines.txt', usecols=0)
+ranges = np.genfromtxt('ranges.txt')
+
 line_diff = np.diff(lines_raw)
-widths = []
+
 JDs = []
 
 #browse all the *.fc.fits files in a directory and its subdirectories
-main_path = './Asiago_nightsky/2006/'
-main_path = './'
+main_path = './Asiago_nightsky/2020/'
+#main_path = './'
 file_ls = glob.glob(main_path+'/**/*.fc.bkg.fits', recursive= True)
 names = [os.path.basename(x) for x in file_ls]
 
@@ -66,26 +72,88 @@ for name,file in zip(names,file_ls):
     f = open(filename, 'w') if FITS_lines else 0
     f.write(f"#line\t EW") if FITS_lines else 0
 
+    ####################
+
+    cont_sample = np.zeros(len(LAMBDA))
+    for i,Lambda in enumerate(LAMBDA):
+        for Range in ranges:
+            if  Lambda >= Range[0] and Lambda <= Range[1]:
+                cont_sample[i] = spec[i]
+    w = cont_sample != 0
+    cont_sample[~w] = np.nan
+    
+
+    _,smooth_cont = flatten(LAMBDA[w], cont_sample[w], method='biweight',
+                            window_length = 50, cval=1, return_trend=True)
+
+    interp = interp1d(LAMBDA[w], smooth_cont,
+                 kind = 'quadratic', fill_value="extrapolate")    
+    final_cont = interp(LAMBDA)
+    
+    ww = np.diff(LAMBDA[w], append = 0) >= 2*DELTA   
+    pippo = np.zeros(len(LAMBDA))
+    pippo[~w] = np.nan
+    pippo[w] = smooth_cont
+    
+    plt.plot(LAMBDA, spec)
+    plt.plot(LAMBDA, pippo, lw=5)
+    plt.plot(LAMBDA[:1500], final_cont[:1500])
+    plt.show()
+    
+
+    ###################
+
+
+    '''
+    CONTINUUM ESTIMATION
+    '''
+    
+    cont = np.copy(spec)
+    #mask the lines from the spectrum
+    widths = []
+    for line in lines:
+        i = int((line-LAMBDA[0])/DELTA)
+        x = spec[i-line_window:i+line_window] #find peak region
+        peak,prop = find_peaks(x, prominence = np.std(x)) #find lines
+        width = peak_widths(x, peak, rel_height =1) #compute widths
+
+        #mask a region of 3 x widths around the line
+        try:
+             peak_width = int(peak_widths(x, peak, rel_height =1)[0][0]*1.5)
+        except IndexError:
+            peak_width = 0 #if no peaks (i.e. faint line) mask the center only
+        widths.append(peak_width)
+            
+        cont[i-peak_width:i+peak_width] = np.nan #perform masking
+
+        plt.axvline(x=line, ls='--', c='k', alpha=.1)
+
+    #flatten remaining smooth_cont (to remove noise+small lines)
+    w = ~ np.isnan(cont) #take unmasked data
+    _,smooth_cont = flatten(LAMBDA[w], cont[w], method='biweight',
+                         window_length = 20, cval=3, return_trend=True)
+
+    #interpolate over masked regions
+    ww = ~ np.isnan(smooth_cont)
+    LLAMBDA = LAMBDA[w]    
+    interp = interp1d(LLAMBDA[ww], smooth_cont[ww],
+                 kind = 'quadratic', fill_value="extrapolate")    
+    final_cont = interp(LAMBDA)
+
+    if save_cont is True:
+        plt.plot(LAMBDA, spec, label='original')
+        plt.plot(LAMBDA, cont, label='masked data')
+        plt.plot(LAMBDA, final_cont, label='continuum est.')
+        plt.xlabel('wavelenght [A]')
+        plt.ylabel('flux [erg/cm2/s/A]')
+        plt.legend()
+        plt.show()
+        #plt.savefig('./plots/continuum/'+year+'_'+name[:-8]+'.png', dpi=500)
+        plt.close()
+
     '''
     LINE FIT
     '''
-    #continuum estimation
-    lvl_est = np.median(spec)
-    _,trend_raw = flatten (LAMBDA,
-                            spec ,
-                            method ='biweight',
-                            window_length =200 ,
-                            cval = 10, return_trend = True )
-
-    #trim removing peaks, i.e. data far above the global trend
-    spec_trim = np.where(spec <= trend_raw+0.3*np.median(spec), spec, trend_raw)
-
-    #detrend the trimmed data, much less sensitive to the peaks
-    _,trend = flatten (LAMBDA,
-                       spec_trim ,
-                       method ='biweight',
-                       window_length =150 ,
-                       cval = 5, return_trend = True )
 
     #line fit and EW computation
     u_flux = u.erg / (u.cm ** 2 * u.s * u.AA) #flux units
@@ -93,18 +161,19 @@ for name,file in zip(names,file_ls):
     spectrum = Spectrum1D(flux=spec*u_flux, spectral_axis=LAMBDA*A)
     EWs = []
 
-    for line in lines:
+    for line,width in zip(lines,widths):
         line_init = models.Gaussian1D(amplitude=0.5*max(spec)*u_flux,
                                     mean=line*A,
                                     stddev=5.*A)
         
-        line_fit = fit_lines(spectrum-trend, line_init)
+        line_fit = fit_lines(spectrum-final_cont, line_init,
+                             window=width*DELTA*A)
         y_fit = line_fit(LAMBDA*A)
 
-        plt.plot(LAMBDA, y_fit+trend*u_flux,
+        plt.plot(LAMBDA, y_fit+final_cont*u_flux,
                  lw=0.4, ls = '-', c='C1') if plot_fits else 0
 
-        EW = np.sum(y_fit/(trend*u_flux))
+        EW = np.sum(y_fit/(final_cont*u_flux))
         EWs.append(EW)
    
     # for groups of lines the same EW is given to all the components
@@ -149,7 +218,7 @@ for name,file in zip(names,file_ls):
         #save the contimuum in a new partition too
         table_hdu = fits.BinTableHDU.from_columns(
             [fits.Column(name = 'LAMBDA', array = LAMBDA, format = 'E'),
-             fits.Column(name = 'flux', array = trend, format = 'E')])
+             fits.Column(name = 'flux', array = final_cont, format = 'E')])
         hdul.append(table_hdu)
 
         #save the .FITS file

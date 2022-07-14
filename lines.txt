@@ -1,8 +1,10 @@
 #lambda	el	notes
+3554.0		u
 3650.15	HgI
 3663.28	HgI
 4046.56	HgI
 4077.84	HgI
+4104.0		u
 4358.34	HgI
 4511.37	ScI	+5 ScI lines
 4538.3		unkwnown
@@ -12,9 +14,11 @@
 4753.17	ScI	+NaI
 4978.54	NaI	+ScI, HgI
 4982.81	NaI	+ScI, HgI
+5085.0		u
 5148.84	NaI
 5153.40	NaI
 5156.99	ScI
+5196.0		u
 5349.71	ScI
 5354.03	HgI
 5355.79	ScI
@@ -36,4 +40,6 @@
 6113.47	ArI	CFL
 6154.23	NaI
 6160.75	NaI
+6230.0		u
 6300.30	[OI]
+6370.0		u
