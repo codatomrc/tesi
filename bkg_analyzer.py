@@ -15,12 +15,13 @@ from specutils.spectra import Spectrum1D
 ######################
 #OPTIONS
 
-plot_fits = False
-save_fits = False
+plot_fits = True
+save_fits = True
 
-save_cont = False
+show_cont = False
+save_cont = True
 
-FITS_lines = False
+FITS_lines = True
 #PARAMS
 line_res = 3 #x delta lambda, min distance to consider lines as unresolved
 JD0 = 2450000
@@ -29,15 +30,16 @@ line_window = 10 #DELTA units when finding lines to be masked to estimate contin
 
 # import lines table
 lines_raw = np.genfromtxt('lines.txt', usecols=0)
-ranges = np.genfromtxt('ranges.txt')
+ranges2 = np.genfromtxt('ranges2.txt')
+
 
 line_diff = np.diff(lines_raw)
 
 JDs = []
 
 #browse all the *.fc.fits files in a directory and its subdirectories
-main_path = './Asiago_nightsky/2020/'
-#main_path = './'
+main_path = './Asiago_nightsky/2009/'
+main_path = './Asiago_nightsky/'
 file_ls = glob.glob(main_path+'/**/*.fc.bkg.fits', recursive= True)
 names = [os.path.basename(x) for x in file_ls]
 
@@ -74,107 +76,83 @@ for name,file in zip(names,file_ls):
 
     ####################
 
-    cont_sample = np.zeros(len(LAMBDA))
-    for i,Lambda in enumerate(LAMBDA):
-        for Range in ranges:
-            if  Lambda >= Range[0] and Lambda <= Range[1]:
-                cont_sample[i] = spec[i]
-    w = cont_sample != 0
-    cont_sample[~w] = np.nan
-    
-
-    _,smooth_cont = flatten(LAMBDA[w], cont_sample[w], method='biweight',
-                            window_length = 50, cval=1, return_trend=True)
-
-    interp = interp1d(LAMBDA[w], smooth_cont,
-                 kind = 'quadratic', fill_value="extrapolate")    
-    final_cont = interp(LAMBDA)
-    
-    ww = np.diff(LAMBDA[w], append = 0) >= 2*DELTA   
-    pippo = np.zeros(len(LAMBDA))
-    pippo[~w] = np.nan
-    pippo[w] = smooth_cont
-    
-    plt.plot(LAMBDA, spec)
-    plt.plot(LAMBDA, pippo, lw=5)
-    plt.plot(LAMBDA[:1500], final_cont[:1500])
-    plt.show()
-    
-
-    ###################
-
-
     '''
     CONTINUUM ESTIMATION
     '''
-    
-    cont = np.copy(spec)
-    #mask the lines from the spectrum
-    widths = []
-    for line in lines:
-        i = int((line-LAMBDA[0])/DELTA)
-        x = spec[i-line_window:i+line_window] #find peak region
-        peak,prop = find_peaks(x, prominence = np.std(x)) #find lines
-        width = peak_widths(x, peak, rel_height =1) #compute widths
 
-        #mask a region of 3 x widths around the line
-        try:
-             peak_width = int(peak_widths(x, peak, rel_height =1)[0][0]*1.5)
-        except IndexError:
-            peak_width = 0 #if no peaks (i.e. faint line) mask the center only
-        widths.append(peak_width)
-            
-        cont[i-peak_width:i+peak_width] = np.nan #perform masking
+    cont_sample = np.zeros(len(LAMBDA)) #samples array
 
-        plt.axvline(x=line, ls='--', c='k', alpha=.1)
+    x,y=[],[]
+    plt.plot(LAMBDA, spec, label='original') if show_cont else 0
+    #iterate over the sampling intervals
+    for Range in ranges2:
 
-    #flatten remaining smooth_cont (to remove noise+small lines)
-    w = ~ np.isnan(cont) #take unmasked data
-    _,smooth_cont = flatten(LAMBDA[w], cont[w], method='biweight',
-                         window_length = 20, cval=3, return_trend=True)
+        #LAMBDAs in the sampling ranges
+        in_range = (LAMBDA > Range[0]) & (LAMBDA < Range[1])
+        if np.sum(in_range) == 0:
+            print(f'WARNING: no data in the interval from {Range[0]}A!')
 
-    #interpolate over masked regions
-    ww = ~ np.isnan(smooth_cont)
-    LLAMBDA = LAMBDA[w]    
-    interp = interp1d(LLAMBDA[ww], smooth_cont[ww],
+        plt.plot(LAMBDA[in_range],spec[in_range], c='C2',lw=3)
+
+        #average the signal (small interval, linear approx.)
+        LAMBDA_avg = np.mean(LAMBDA[in_range])
+        spec_avg = np.mean(spec[in_range])
+
+        x.append(LAMBDA_avg)
+        y.append(spec_avg)
+
+
+    #interplolate the continuum from the sampling intervals
+    interp = interp1d(x, y,
                  kind = 'quadratic', fill_value="extrapolate")    
     final_cont = interp(LAMBDA)
-
-    if save_cont is True:
-        plt.plot(LAMBDA, spec, label='original')
-        plt.plot(LAMBDA, cont, label='masked data')
+    
+    #plot and save the results
+    if show_cont is True:
+        plt.plot(LAMBDA[in_range],spec[in_range], c='C2',
+                 label = 'sampled regions', lw=3)
+        
         plt.plot(LAMBDA, final_cont, label='continuum est.')
         plt.xlabel('wavelenght [A]')
         plt.ylabel('flux [erg/cm2/s/A]')
         plt.legend()
-        plt.show()
-        #plt.savefig('./plots/continuum/'+year+'_'+name[:-8]+'.png', dpi=500)
+        if save_cont is True:
+            plt.savefig('./plots/continuum/'+year+'_'+name[:-8]+'.png', dpi=500)
+            plt.close()
+        else:
+            plt.show()
+    else:
         plt.close()
 
     '''
     LINE FIT
     '''
 
-    #line fit and EW computation
+    #LINE FIT
     u_flux = u.erg / (u.cm ** 2 * u.s * u.AA) #flux units
     A = u.AA #angstrom units
     spectrum = Spectrum1D(flux=spec*u_flux, spectral_axis=LAMBDA*A)
     EWs = []
 
-    for line,width in zip(lines,widths):
-        line_init = models.Gaussian1D(amplitude=0.5*max(spec)*u_flux,
-                                    mean=line*A,
+    #model the line spectrum as sum of all the lines
+    model = models.Gaussian1D(amplitude=0.5*max(spec)*u_flux,
+                                    mean=lines[0]*A,
                                     stddev=5.*A)
+    
+    for line in lines[1:]:
+        model = model + models.Gaussian1D(amplitude=0.5*max(spec)*u_flux,
+                                          mean=line*A,
+                                          stddev=5.*A)
         
-        line_fit = fit_lines(spectrum-final_cont, line_init,
-                             window=width*DELTA*A)
-        y_fit = line_fit(LAMBDA*A)
+        
+    line_fit = fit_lines(spectrum-final_cont, model)
+    y_fit = line_fit(LAMBDA*A)
 
-        plt.plot(LAMBDA, y_fit+final_cont*u_flux,
-                 lw=0.4, ls = '-', c='C1') if plot_fits else 0
+    plt.plot(LAMBDA, y_fit+final_cont*u_flux,
+                lw=0.4, ls = '-', c='C1') if plot_fits else 0
 
-        EW = np.sum(y_fit/(final_cont*u_flux))
-        EWs.append(EW)
+    EW = np.sum(y_fit/(final_cont*u_flux))
+    EWs.append(EW)
    
     # for groups of lines the same EW is given to all the components
     EW_array = np.zeros(np.shape(lines_raw))
@@ -186,6 +164,7 @@ for name,file in zip(names,file_ls):
 
         f.writelines(f"\n{lines_raw[i]}\t {EW_array[i]}") if FITS_lines else 0
 
+    #plot the spectrum and the best fit profiles
     if plot_fits is True:
         plt.plot(LAMBDA, spec, lw=0.2, ls='-.')
         plt.xlabel('wavelenght [A]')
@@ -199,6 +178,7 @@ for name,file in zip(names,file_ls):
     #plt.plot(EWs, '-o')
     f.close() if FITS_lines else 0
 
+    #save as a new .FITS file
     if FITS_lines is True:
         #save new FIT file with with EW in a partition
         table_hdu = fits.BinTableHDU.from_columns(
@@ -224,27 +204,3 @@ for name,file in zip(names,file_ls):
         #save the .FITS file
         file_new = file[:-12]+'.l.fits'
         hdul.writeto(file_new, overwrite=True)
-    
-    
-
-#plt.show()
-widths = np.asarray(widths)
-
-#remove bad fits
-neg_sel = widths <= 0.
-widths[neg_sel] = np.nan
-
-
-cm = plt.cm.Spectral(np.linspace(1, 0, 7500-3500))
-for i in range(len(widths.T)):
-    plt.plot(JDs, widths.T[i], 'o', color=cm[int(lines[i])-int(3500)])
-plt.xlabel(f'Epoch [JD-{JD0}d]')
-plt.ylabel('EW (A)')
-#plt.ylim(0,+50)
-sm = plt.cm.ScalarMappable(cmap='Spectral')
-cbar = plt.colorbar(sm, ticks=[0,0.5,1])
-cbar.set_ticklabels(['7500 A','5500 A','3500 A'])
-plt.title('Intensities of all the detected spectral lines')
-plt.xticks([])
-plt.show()
-

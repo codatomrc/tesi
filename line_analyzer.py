@@ -71,9 +71,7 @@ for i,file in enumerate(file_ls):
     for datum in continuum_data:
         if datum[0] >= 7000 and datum[0] <= 8000:
             cont_val += datum[1]
-    ctr_cont.append(cont_val)
-
-    
+    ctr_cont.append(cont_val)    
             
 
 '''
