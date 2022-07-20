@@ -18,12 +18,11 @@ from specutils.spectra import Spectrum1D
 plot_fits = True
 save_fits = True
 
-show_cont = False
+show_cont = True
 save_cont = True
 
 FITS_lines = True
 #PARAMS
-line_res = 3 #x delta lambda, min distance to consider lines as unresolved
 JD0 = 2450000
 line_window = 10 #DELTA units when finding lines to be masked to estimate continuum
 ######################
@@ -38,7 +37,7 @@ line_diff = np.diff(lines_raw)
 JDs = []
 
 #browse all the *.fc.fits files in a directory and its subdirectories
-main_path = './Asiago_nightsky/2009/'
+main_path = './Asiago_nightsky/2021/'
 main_path = './Asiago_nightsky/'
 file_ls = glob.glob(main_path+'/**/*.fc.bkg.fits', recursive= True)
 names = [os.path.basename(x) for x in file_ls]
@@ -57,6 +56,11 @@ for name,file in zip(names,file_ls):
     LAMBDA_lim = hdr['UVLIM']
     year = hdr['DATE-OBS'][:4]
     JDs.append(hdr['JD'])
+    try:
+        slit = hdr['SLIT']/1000.*hdr['TELSCALE']/hdr['CCDSCALE'] #px
+    except KeyError:
+        slit = hdr['SLIT']/1000.*10.70/0.63 # TO BE CHECKED!!!
+    
 
     #the (eventually) UV-limited wavelengths array
     LAMBDA_start = max(LAMBDA_lim, LAMBDA0)
@@ -66,7 +70,7 @@ for name,file in zip(names,file_ls):
     spec = np.nanmean(data, axis=0)
 
     #remove blended lines, i.e. to be considered as a single feature
-    close_lines = np.where(line_diff < line_res*DELTA, False, True)
+    close_lines = np.where(line_diff < slit*DELTA, False, True)
     close_lines = np.insert(close_lines, 0, True)
     lines = lines_raw[close_lines]
 
@@ -143,6 +147,8 @@ for name,file in zip(names,file_ls):
         model = model + models.Gaussian1D(amplitude=0.5*max(spec)*u_flux,
                                           mean=line*A,
                                           stddev=5.*A)
+
+        plt.axvline(x=line, lw=0.4, ls='--', c='k', alpha=0.2) if plot_fits else 0
         
         
     line_fit = fit_lines(spectrum-final_cont, model)
@@ -150,6 +156,7 @@ for name,file in zip(names,file_ls):
 
     plt.plot(LAMBDA, y_fit+final_cont*u_flux,
                 lw=0.4, ls = '-', c='C1') if plot_fits else 0
+    
 
     EW = np.sum(y_fit/(final_cont*u_flux))
     EWs.append(EW)

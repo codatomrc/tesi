@@ -1,0 +1,26 @@
+\chapter{Sky spectra reduction}
+
+In this chapter are reported the steps in the data reduction that I designed to extract spectra of the sky from frames originally taken for scientific purposes. After a brief overview I describe accurately the data reduction process that I built. To improve the readability of this writing, I will report only the most significant pieces of code. The full source code instead is reported in the appendix \ref{code}.
+
+\section{Introduction}
+
+\subsection{Software management and reduction steps}
+In this work I developed some pieces of Python (v.\ 3.10) code to manage all the steps of the data reduction. Note that most of the data pre-reduction was already done and was not necessary to use old software such as IRAF or its python version PyRAF. In this work I tried to heavily automatize the script in order to be able to analyze all the frames with a single run. Many efforts were spent to build a robust code, capable of working correctly for spectra with very different features, without the necessity to fine-tune the software settings every single time a new frame is processed. All of this effort was made in order to be eventually able, in the future, to rapidly analyze new frames.
+
+I decided to divide the source code into different independent script, each one devoted to a specific task. It follows a brief description of each step od the data reduction process.
+\begin{description}
+	\item [Background extraction] Starting from the original spectra I have to separate the scientific targets from the background regions. Once identified the spectra of the targets and the cosmic rays, the relative regions are masked. The remaining area contain the spectrum from the sky background only and is extracted to a new file.
+	\item [Background analysis] The sky spectrum is averaged along the slit direction. From the regions that do not present lines is estimated the shape of the sky continuum emission. Prominent lines or lines of interest are identified and the relative equivalent width is computed. The output of background analysis is the estimation of the continuum emission and the list of the widths of the emission lines.
+	\item [Line analysis] The width of the same line is compared in the different frames. Particular attention is devoted to the line intensity with the epoch of observation and the direction in the sky.
+	\item [Continuum analysis] Continuum intensity in different bands of the spectra is computed and correlated again with the epoch and direction of observation.
+\end{description}
+
+\subsection{The dataset}
+This work is based on 35 spectra taken between 2006 and 2020 in the Osservatorio Astrofisico di Asiago, Asiago, northern Italy. Spectra were collected by professor Stefano Ciroi and collaborators to collect data on studied astronomical objects and were taken with the \SI{1.22}{m} reflective telescope ``Galileo Galilei'' equipped with the grating spectrograph ``Boller\&Chivens''.
+
+Each frame has been pre-reduced by Ciroi and its work group: data has been corrected for bias and flat field and calibration on both flux and wavelength was performed. Cosmic rays were not removed as well as the sky background. Before November 2011 frames have a spatial scale on the CCD of \SI{0.63}{arcsec\per{px}} while on later data the scale is \SI{1.0}{arcsec\per{px}}. For all the object has been used a grating with a line density of \SI{300}{tr\per{mm}} while the grating angle varied between \ang{0} and \ang{5.25} according to the type of target. Similarly slit aperture size varies from a minimum of 200 to a maximum of \SI{400}{\micro\metre} while the exposure times ranged between 300 and \SI{3600}{s}.
+
+\section{Background extraction}
+
+\section{Background analysis}
+

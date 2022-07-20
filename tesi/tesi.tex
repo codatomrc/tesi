@@ -7,8 +7,12 @@
 \usepackage{siunitx}
 \usepackage{hyperref}
 
+%impostazioni pagina
 \usepackage{geometry}
 \geometry{a4paper, top=2.5cm, bottom=2.5cm, left=2.4cm, right=2.4cm, heightrounded, bindingoffset=0.2cm}
+
+%frontespizio
+\usepackage[nouppercase, nowrite]{frontespizio}
 
 %migliora l'aspetto delle testatine
 \usepackage{emptypage} %toglie testatine da pagine vuote
@@ -21,6 +25,16 @@
 \fancyhead[LO]{\scshape\footnotesize\nouppercase{\rightmark}} 
 \fancyhead[RE]{\scshape\footnotesize\nouppercase{\leftmark}}
 
+%listings
+\usepackage{xcolor}
+\usepackage{listings}
+\lstset{language=Python,%
+	basicstyle=\footnotesize\ttfamily,stringstyle=\color{red!40!black},%
+	commentstyle=\color{violet!95!black}\textsf,%
+	keywordstyle=\color{green!30!black}, morekeywords={as},%
+	tabsize=3,breaklines=true,postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}, showstringspaces=false,%
+	backgroundcolor = \color{black!3!white}}
+
 %comando per l'abstract (non esiste nella classe book)
 \newenvironment{abstract}{%
 	\newpage\thispagestyle{empty}\vspace*{3\baselineskip}
@@ -28,13 +42,26 @@
 	\begin{quotation}%
 	}{\end{quotation}\clearpage}
 
-
-\title{The evolution of the night sky spectrum in Asiago}
-\author{Marco Codato}
-\date{Master Thesis in Astrophysics and Cosmology}
-
 \begin{document}
-\maketitle
+%FRONTESPIZIO
+\begin{frontespizio}
+	\Universita{Padova}
+	\Logo[3cm]{logo}
+	\Dipartimento{Fisica e Astronomia ``G.~Galilei''}
+	\Scuola{Master Degree in Astrophysics and Cosmology}
+	%\Corso[]{Astrophysics and Cosmology}
+	\Titoletto{\Large{Final dissertation}}
+	\Titolo{The evolution of the night sky spectrum in Asiago}
+	\NCandidato{Candidate}
+	\Preambolo{\renewcommand{\frontsmallfont}[1]{\small Badge number }}
+	\Candidato[2023377]{Marco Codato}
+	\NRelatore{Supervisor}{Supervisor}
+	\Relatore{Prof.~Sergio Ortolani}
+	\NCorrelatore{Co-supervisor}{}
+	\Correlatore{Prof.~Stefano Ciroi}
+	\Piede{Academic Year 2021 -- 2022}
+	\Rientro{2cm}
+\end{frontespizio}
 
 \thispagestyle{empty}
 \
@@ -100,6 +127,16 @@ With the economic boom in the 50s, industrial and manufacturing activities repla
 For all the issues above measuring and monitoring the LP is of crucial important. 
 
 \input{./2_natural_sky/natuarl_sky}
+\chapter{Artificial sky light pollution}
+\chapter{The spectrum of the sky}
+\input{./5_mywork/mywork}
+
+\appendix
+\chapter{Source code}\label{code}
+\section{Background extraction}
+\lstinputlisting[language=Python]{../bkg_extractor.py}
+\section{Background analysis}
+\lstinputlisting[language=Python]{../bkg_analyzer.py}
 
 \bibliography{bibliography}
 \bibliographystyle{alpha}

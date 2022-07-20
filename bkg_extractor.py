@@ -89,7 +89,7 @@ for name,file in zip(names,file_ls):
         log_append(' WARNING: no scale info in the hdr (using defauls)')
         
         TELSCALE = 10.70 #arcsec/mm #TO BE CHECKED!!!
-        CCDSCALE = 0.60 #arcsec/px #TO BE CHECKED!!!
+        CCDSCALE = 0.63 #arcsec/px #TO BE CHECKED!!!
 
     SLIT_angular = SLIT/1000 * TELSCALE #slit size in arcsec
     SLIT_px = SLIT_angular / CCDSCALE / BINX #slit size in px

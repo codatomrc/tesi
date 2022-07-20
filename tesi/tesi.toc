@@ -29,3 +29,14 @@
 \contentsline {paragraph}{Dark clear sites.}{14}{section*.20}%
 \contentsline {paragraph}{Light polluted sites.}{15}{section*.21}%
 \contentsline {paragraph}{Scattered sunlight and moonlight.}{15}{section*.22}%
+\contentsline {chapter}{\numberline {3}Artificial sky light pollution}{17}{chapter.3}%
+\contentsline {chapter}{\numberline {4}The spectrum of the sky}{19}{chapter.4}%
+\contentsline {chapter}{\numberline {5}Sky spectra reduction}{21}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Introduction}{21}{section.5.1}%
+\contentsline {subsection}{\numberline {5.1.1}Software management and reduction steps}{21}{subsection.5.1.1}%
+\contentsline {subsection}{\numberline {5.1.2}The dataset}{21}{subsection.5.1.2}%
+\contentsline {section}{\numberline {5.2}Background extraction}{22}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Background analysis}{22}{section.5.3}%
+\contentsline {chapter}{\numberline {A}Source code}{23}{appendix.A}%
+\contentsline {section}{\numberline {A.1}Background extraction}{23}{section.A.1}%
+\contentsline {section}{\numberline {A.2}Background analysis}{27}{section.A.2}%

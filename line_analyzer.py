@@ -86,7 +86,8 @@ def plot_lines(a, line_list):
             x[i-1] = a[i,0]
             y[j,i-1] = a[i, line_sel]
     return x,y
-
+OI_lines = [5577.34, 6300.30]
+'''
 Hg_lines = [3650.15, 4046.56, 4077.84, 4358.34, 4670.83, 5354.03, 5460.75, 5675.81, 5769.61, 5790.67]
 Na_lines = [4978.54, 5148.84, 5682.63, 6154.23] #skipped NaD # 5892
 OI_lines = [5577.34, 6300.30]
@@ -112,7 +113,7 @@ plt.ylabel('EW [A]')
 plt.legend()
 plt.show()
 
-
+'''
 plt.title('Telluric lines ([0I] transitions)')
 x,y = plot_lines(data_array, OI_lines)
 for i,yy in enumerate(y):

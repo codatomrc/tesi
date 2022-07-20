@@ -2,36 +2,45 @@
 3554.0		u
 3650.15	HgI
 3663.28	HgI
+3780.0
 4046.56	HgI
 4077.84	HgI
-4104.0		u
+4100.32 ScI	***
+4163.59	NeI	***
+#4104.0		
 4358.34	HgI
+4420.		NaI	*
+4423.		NaI	*
 4511.37	ScI	+5 ScI lines
 4538.3		unkwnown
 4664.81	NaI
 4668.56	NaI
 4670.83	HgI	+ScI
 4753.17	ScI	+NaI
+4827.	HgI	*
+4832.	HgI	*
+4916.07	HgI ***
 4978.54	NaI	+ScI, HgI
 4982.81	NaI	+ScI, HgI
-5085.0		u
+5085.0		ScI?***
 5148.84	NaI
 5153.40	NaI
 5156.99	ScI
-5196.0		u
+5199.		NI	*
 5349.71	ScI
 5354.03	HgI
 5355.79	ScI
 5356.10	ScI
+5372.36	ScI	***
 #5379.2		unkwnown
 5418.02	XeI
-#5438.3		unkwnown
+5438.3		unkwnown
 5460.75	HgI
 5577.34	[OI]
-5668.75	ScI
+#5668.75	ScI
 5671.83	ScI
-5675.81	HgI
-5682.63	NaI	+XeI
+#5675.81	HgI
+#5682.63	NaI	+XeI
 5688.21	NaI	+XeI
 5769.61	HgI
 5790.67	HgI
@@ -40,6 +49,11 @@
 6113.47	ArI	CFL
 6154.23	NaI
 6160.75	NaI
-6230.0		u
+6230.0		OHbands?*
 6300.30	[OI]
-6370.0		u
+6358.0		u
+6708.	LiI**
+#
+# *Ji-Cheng+16
+# **Sanchez+07
+# ***Slanger+03
