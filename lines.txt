@@ -1,8 +1,8 @@
-#lambda	el	notes
-3554.0		u
+#lambda	spec	notes
+3554.0	?	u
 3650.15	HgI
 3663.28	HgI
-3780.0
+3780.0	?	u
 4046.56	HgI
 4077.84	HgI
 4100.32 ScI	***

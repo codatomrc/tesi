@@ -32,29 +32,14 @@ main_path = './'
 file_ls = glob.glob(main_path+'/**/*.fc.fits', recursive= True)
 names = [os.path.basename(x) for x in file_ls]
 
-#initialize the .log file
-f = open("bkg_extr.log", "w")
-f.write('Running bkg_extr.py at '+
-        datetime.now().strftime("%H:%M:%S, %Y-%m-%d")+'\n')
-f.close()
-
 #import table of known lines
 lines = np.genfromtxt('lines.txt', usecols=0)
-
-#append to the log
-warnings_count = 0
-def log_append(message):
-    f = open("bkg_extr.log", "a")
-    f.write(message+'\n')
-    f.close()
 
 ######################
 ######################
 
 #process all the files found
 for name,file in zip(names,file_ls):
-
-    print('processing file '+name+'\n', end='\r')
 
     #open a FITS file
     hdul = fits.open(file)
@@ -66,7 +51,7 @@ for name,file in zip(names,file_ls):
 
     #generate the lambdas array
     if hdr['CTYPE1'] != 'LINEAR':
-        log_append('WARNING: no linear wavelength calibration')    
+        print('WARNING: no linear wavelength calibration')    
     LAMBDA = np.arange(LAMBDA0, LAMBDA0+NAXIS1*DELTA, DELTA)
     if len(LAMBDA) == NAXIS1+1:
         LAMBDA = LAMBDA[:-1]
@@ -80,13 +65,13 @@ for name,file in zip(names,file_ls):
     #aperture information from the hdr
     SLIT = hdr['SLIT'] #microns
     try:
-        BINX, BINY = hdr['BINX'], hdr['BINY']
+        BINX, BINY = hdr['BINX'], hdr['BINY'] #binning factors
         TELSCALE = hdr['TELSCALE'] #arcsec/mm
         CCDSCALE = hdr['CCDSCALE'] #arcsec/px
     except KeyError:
         BINX, BINY = hdr['HBIN'], hdr['VBIN']
 
-        log_append(' WARNING: no scale info in the hdr (using defauls)')
+        print(' WARNING: no scale info in the hdr (using defauls)')
         
         TELSCALE = 10.70 #arcsec/mm #TO BE CHECKED!!!
         CCDSCALE = 0.63 #arcsec/px #TO BE CHECKED!!!
@@ -98,12 +83,10 @@ for name,file in zip(names,file_ls):
     #bkg level estiamtion
     raw_data = hdul[0].data[:,LAMBDA_start_id:]
     raw_integr = np.sum(raw_data, axis = 1)
-    x = np.arange(len(raw_integr))
-        
-    bkg_est = np.nanmedian(raw_integr)
 
 ######################
     #remove cosmic rays and UV noise
+    x = np.arange(len(raw_integr)) 
     data = np.copy(raw_data)
 
     cr_col_frac = np.zeros(len(LAMBDA)) #fraction of remaining px
@@ -143,7 +126,7 @@ for name,file in zip(names,file_ls):
     _,trend_raw = flatten (x,
                             integr ,
                             method ='biweight',
-                            window_length =200 ,
+                            window_length =0.5*NAXIS2 ,
                             cval = 10, return_trend = True )
 
     #trim removing peaks, i.e. data fare above the global trend
@@ -154,7 +137,7 @@ for name,file in zip(names,file_ls):
     _,trend = flatten (x,
                        integr_trim ,
                        method ='biweight',
-                       window_length =50 ,
+                       window_length =NAXIS/10. ,
                        cval = 10, return_trend = True )
     '''
     more plot about detrending
@@ -174,8 +157,7 @@ for name,file in zip(names,file_ls):
     peak_FWHM = peak_widths(integr, peaks, rel_height=.5)[0]/2.
 
     if len(peak_FWHM)== 0:
-        no_source = " WARNING: no sources were detected"
-        log_append(no_source)
+        print( " WARNING: no sources were detected")
 
     #generate a boolean mask True outside the peaks
     bkg_sel = np.full(np.shape(x), True)
@@ -273,8 +255,3 @@ for name,file in zip(names,file_ls):
 
         file_new = file[:-5]+'.bkg.fits'
         new_hdul.writeto(file_new, overwrite=True)
-
-f = open("bkg_extr.log", 'r')
-warnings_count = len(f.readlines())-1
-if warnings_count != 0:
-    print(f'WARNING: {warnings_count} warnings occurred (see the log)')

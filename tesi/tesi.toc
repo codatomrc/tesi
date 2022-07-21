@@ -36,7 +36,13 @@
 \contentsline {subsection}{\numberline {5.1.1}Software management and reduction steps}{21}{subsection.5.1.1}%
 \contentsline {subsection}{\numberline {5.1.2}The dataset}{21}{subsection.5.1.2}%
 \contentsline {section}{\numberline {5.2}Background extraction}{22}{section.5.2}%
-\contentsline {section}{\numberline {5.3}Background analysis}{22}{section.5.3}%
-\contentsline {chapter}{\numberline {A}Source code}{23}{appendix.A}%
-\contentsline {section}{\numberline {A.1}Background extraction}{23}{section.A.1}%
-\contentsline {section}{\numberline {A.2}Background analysis}{27}{section.A.2}%
+\contentsline {subsection}{\numberline {5.2.1}Preamble}{22}{subsection.5.2.1}%
+\contentsline {paragraph}{Modules, options and parameters.}{22}{section*.23}%
+\contentsline {paragraph}{Data import and handling.}{22}{section*.24}%
+\contentsline {subsection}{\numberline {5.2.2}Data extraction}{23}{subsection.5.2.2}%
+\contentsline {paragraph}{Wavelength data.}{23}{section*.25}%
+\contentsline {paragraph}{Slit and scale data.}{23}{section*.26}%
+\contentsline {subsection}{\numberline {5.2.3}Cosmic ray and noise removal}{24}{subsection.5.2.3}%
+\contentsline {subsection}{\numberline {5.2.4}Sources identification}{25}{subsection.5.2.4}%
+\contentsline {subsection}{\numberline {5.2.5}Sky spectrum export}{27}{subsection.5.2.5}%
+\contentsline {section}{\numberline {5.3}Background analysis}{27}{section.5.3}%

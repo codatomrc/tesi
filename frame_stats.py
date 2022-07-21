@@ -59,9 +59,9 @@ for name,file in zip(names,file_ls):
     JDs.append(hdr['JD'])
 
     try:
-        print(hdr['EXPTIME'],hdr['DATE-OBS'])
+        print(hdr['TELSCALE'],hdr['DATE-OBS'])
     except KeyError:
-        pass
+        print(hdr['DATE-OBS'])
 
     #the (eventually) UV-limited wavelengths array
     LAMBDA_start = max(LAMBDA_lim, LAMBDA0)

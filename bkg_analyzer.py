@@ -113,6 +113,8 @@ for name,file in zip(names,file_ls):
     
     #plot and save the results
     if show_cont is True:
+        for line in lines:
+            plt.axvline(x=line, ls='--', c='gray', lw=0.2)
         plt.plot(LAMBDA[in_range],spec[in_range], c='C2',
                  label = 'sampled regions', lw=3)
         
