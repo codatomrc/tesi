@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib import colors
 from astropy.io import fits
 from scipy.signal import find_peaks, peak_widths
 from datetime import datetime
@@ -10,10 +11,10 @@ from scipy.optimize import curve_fit
 
 ######################
 #OPTIONS
-save_plots = True
+save_plots = False
 save_FITS = False
-plot_profile = True
-plot_spec = True
+plot_profile = False
+plot_spec = False
 show_ima = False
 
 #PARAMS
@@ -27,8 +28,8 @@ LAMBDA_lim = 3500 #A, limit blue wavelength
 ######################
 
 #browse all the *.fc.fits files in a directory and its subdirectories
-main_path = './Asiago_nightsky/2020/'
-main_path = './'
+main_path = './Asiago_nightsky/2006/'
+#main_path = './'
 file_ls = glob.glob(main_path+'/**/*.fc.fits', recursive= True)
 names = [os.path.basename(x) for x in file_ls]
 
@@ -84,6 +85,18 @@ for name,file in zip(names,file_ls):
     raw_data = hdul[0].data[:,LAMBDA_start_id:]
     raw_integr = np.sum(raw_data, axis = 1)
 
+    '''
+    fig,ax =plt.subplots(figsize=(10,2))
+    cs = ax.imshow(raw_data, extent = [LAMBDA[0], LAMBDA[-1], NAXIS2, 0], norm=colors.LogNorm(), aspect=2)
+    cbar = fig.colorbar(cs)
+    cbar.set_label(r'flux [erg/cm$^2$/s/A]')
+    ax.set_xlabel(r' wavelengt $\lambda$ [A]')
+    ax.set_ylabel(r' slit position $x$ [px]')
+    plt.tight_layout()
+    plt.show()
+    print(hdr['OBJECT'], hdr['DATE-OBS'])
+    '''
+
 ######################
     #remove cosmic rays and UV noise
     x = np.arange(len(raw_integr)) 
@@ -137,14 +150,19 @@ for name,file in zip(names,file_ls):
     _,trend = flatten (x,
                        integr_trim ,
                        method ='biweight',
-                       window_length =NAXIS/10. ,
+                       window_length =NAXIS2/10. ,
                        cval = 10, return_trend = True )
     '''
     more plot about detrending
-    plt.plot(x,integr, label='original profile')
-    plt.plot(x,trend_raw, label='raw de-trend')
-    plt.plot(x,integr_trim, label='trimmed profile')
-    plt.plot(x,trend, label='final bkg trend estimation')
+    '''
+    '''
+    plt.plot(x,integr, label=r'original profile $F(x)$')
+    plt.plot(x,trend_raw, label=r"raw de-trend $F'(x)$")
+    plt.plot(x,integr_trim, label=r"masked profile $F''(x)$")
+    plt.plot(x, trend_raw+0.05*bkg_est, ls='dashed', c='grey', alpha=0.5, label='mask threshold')
+    plt.plot(x,trend, label='bkg estimation $B(x)$')
+    plt.xlabel('slit position $x$ [px]')
+    plt.ylabel('flux [erg/cm$^2$/s]')
     plt.legend()
     plt.show()
     '''
@@ -178,7 +196,7 @@ for name,file in zip(names,file_ls):
 
     #plot the luminosity profile, show source and bkg regions
     if 1 == plot_profile:
-        plt.title(year+'/'+name[:-8]+': wavelenght integration')
+        #plt.title(year+'/'+name[:-8]+': wavelenght integration')
         plt.plot(raw_integr, alpha=0.2, ls='dashed', c='C1')
         plt.plot(integr, alpha=0.4) #integrated flux
         plt.scatter(x[bkg_sel],
@@ -191,6 +209,8 @@ for name,file in zip(names,file_ls):
         plt.plot(x, trend_raw+0.05*bkg_est, ls='dashed', c='grey', alpha=0.5)
         ima = np.zeros(np.shape(bkg_sel))
         plt.fill_between(x, ~bkg_sel*1.1*max(integr), color='red', alpha=.1)
+        plt.xlabel('slit position $x$ [px]')
+        plt.ylabel('flux [erg/cm$^2$/s]')
         
         #plt settings
         plt.ylim(min(integr)*0.9, max(integr)*1.1)
@@ -236,8 +256,13 @@ for name,file in zip(names,file_ls):
 
     #plot as image the bkr rows only
     if (1 == show_ima) and (save_plots ==0):
-        plt.title('image (sky selection only)')
-        plt.imshow(ma_data, extent = [LAMBDA[0], LAMBDA[-1], NAXIS2, 0])
+        fig,ax =plt.subplots(figsize=(10,2))
+        cs = ax.imshow(ma_data, extent = [LAMBDA[0], LAMBDA[-1], NAXIS2, 0], norm=colors.LogNorm(),aspect=2)
+        cbar = fig.colorbar(cs)
+        cbar.set_label(r'flux [erg/cm$^2$/s/A]')
+        ax.set_xlabel(r' wavelengt $\lambda$ [A]')
+        ax.set_ylabel(r' slit position $x$ [px]')
+        plt.tight_layout()
         plt.show()
 
 ######################

@@ -7,9 +7,9 @@ In this chapter are reported the steps in the data reduction that I designed to 
 \subsection{Software management and reduction steps}
 In this work I developed some pieces of Python (v.\ 3.10) code to manage all the steps of the data reduction. Note that most of the data pre-reduction was already done and was not necessary to use old software such as IRAF or its python version PyRAF. In this work I tried to heavily automatize the script in order to be able to analyze all the frames with a single run. Many efforts were spent to build a robust code, capable of working correctly for spectra with very different features, without the necessity to fine-tune the software settings every single time a new frame is processed. All of this effort was made in order to be eventually able, in the future, to rapidly analyze new frames.
 
-I decided to divide the source code into different independent script, each one devoted to a specific task. It follows a brief description of each step od the data reduction process.
+I decided to divide the source code into different independent scripts, each one devoted to a specific task. It follows a brief description of each step of the data reduction process.
 \begin{description}
-	\item [Background extraction] Starting from the original spectra I have to separate the scientific targets from the background regions. Once identified the spectra of the targets and the cosmic rays, the relative regions are masked. The remaining area contain the spectrum from the sky background only and is extracted to a new file.
+	\item [Background extraction] Starting from the original spectra I have to separate the scientific targets from the background regions. Once identified the spectra of the targets and the cosmic rays, the relative regions are masked. The remaining area contains the spectrum from the sky background only and is extracted to a new file.
 	\item [Background analysis] The sky spectrum is averaged along the slit direction. From the regions that do not present lines is estimated the shape of the sky continuum emission. Prominent lines or lines of interest are identified and the relative equivalent width is computed. The output of background analysis is the estimation of the continuum emission and the list of the widths of the emission lines.
 	\item [Line analysis] The width of the same line is compared in the different frames. Particular attention is devoted to the line intensity with the epoch of observation and the direction in the sky.
 	\item [Continuum analysis] Continuum intensity in different bands of the spectra is computed and correlated again with the epoch and direction of observation.
@@ -18,10 +18,18 @@ I decided to divide the source code into different independent script, each one 
 \subsection{The dataset}
 This work is based on 35 spectra taken between 2006 and 2020 in the Osservatorio Astrofisico di Asiago, Asiago, northern Italy. Spectra were collected by professor Stefano Ciroi and collaborators to collect data on studied astronomical objects and were taken with the \SI{1.22}{m} reflective telescope ``Galileo Galilei'' equipped with the grating spectrograph ``Boller\&Chivens''.
 
-Each frame has been pre-reduced by Ciroi and its work group: data has been corrected for bias and flat field and calibration on both flux and wavelength was performed. Cosmic rays were not removed as well as the sky background. Before November 2011 frames have a spatial scale on the CCD of \SI{0.63}{arcsec\per{px}} while on later data the scale is \SI{1.0}{arcsec\per{px}}. For all the object has been used a grating with a line density of \SI{300}{tr\per{mm}} while the grating angle varied between \ang{0} and \ang{5.25} according to the type of target. Similarly slit aperture size varies from a minimum of 200 to a maximum of \SI{400}{\micro\metre} while the exposure times ranged between 300 and \SI{3600}{s}.
+Each frame has been pre-reduced by Ciroi and its work group: data has been corrected for bias and flat field and calibration on both flux and wavelength was performed. Cosmic rays were not removed as well as the sky background. Before November 2011 frames had a spatial scale on the CCD of \SI{0.63}{arcsec\per{px}} while on later data the scale was \SI{1.0}{arcsec\per{px}}. For all the object, grating with a line density of \SI{300}{tr\per{mm}} was used while the grating angle varied between \ang{0} and \ang{5.25} according to the type of target. Similarly slit aperture size varied from a minimum of 200 to a maximum of \SI{400}{\micro\metre} while the exposure times ranged between 300 and \SI{3600}{s}.
 
 \section{Background extraction}
-The data available was not taken with the aim of monitoring the sky condition and thus contain astronomical objects. The first step in the data reduction is to identify the regions of the spectra where there are the scientific targets. Most of the effort described below is to automatize the process.
+The data available was not taken with the aim of monitoring the sky condition and thus contain astronomical objects. The first step in the data reduction is to identify the regions of the spectra where there are the scientific targets. Most of the effort described below is to automate the process.
+
+On the figure \ref{fig:raw_spec} is shown as an example the spectrum obtained in the 6 November 2020 pointing at the active galaxy labeled 4FGL J0512. Two main astronomical sources are visible as long strips in the top and bottom side of the frame. The other bright vertical lines and bands represent the emission of the sky diffuse background. Looking carefully some cosmic rays can be also spotted toward bluer wavelengths. This frame will be used later to show the different steps in the data process.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\textwidth]{./5_mywork/raw_spec}
+	\caption{An example spectrum from the dataset. The frame contains the active galaxy ``4FGL J0152''. Main components are the galaxy and another source (horizontal stripes), the diffuse background (vertical lines and bands) and some cosmic rays (especially below \SI{4000}{\angstrom}).\label{fig:raw_spec}}
+\end{figure}
 
 \subsection{Preamble}
 Before the actual data analysis I need to load all the necessary.
@@ -57,11 +65,11 @@ cr_pad = 1 # number of px to exclude around cr, in a fixed column
 LAMBDA_lim = 3500 #A, limit blue wavelength
 ######################
 \end{lstlisting}
-Options are some special parameters that allow to enable or disable some debugging diagnostics useful in the developement phase. Parameters are some special values that can be changed to control the final output result. Each of these lines will be explained later when appering in the code.
+Options are some special parameters that allow to enable or disable some debugging diagnostics useful in the development phase. Parameters are some special values that can be changed to control the final output result. Each of these lines will be explained later when appearing in the code.
 
 \paragraph{Data import and handling.} Each spectrum is stored in a \texttt{.fits} file (acronym of Flexible Image Transport System, see \nota{biblio FITS format}). For this work I need both the actual spectrum data and the auxiliary information about the acquisition and reduction processes, contained in the header section.
 
-To automatize the process of data import I used the \texttt{glob} function from the homonyms module (\nota{citare glob package}) to identify all the files with the FITS extension in a given path directory. I also needed the function \texttt{basename} from the \texttt{os.path} module (\nota{citare os.path}) to retrieve the actual name of each file, since \texttt{glob.glob} provide only the full path of the files. Then the file research is implemented with the following code.
+To automate the process of data import I used the \texttt{glob} function from the homonyms module (\nota{citare glob package}) to identify all the files with the FITS extension in a given path directory. I also needed the function \texttt{basename} from the \texttt{os.path} module (\nota{citare os.path}) to retrieve the actual name of each file, since \texttt{glob.glob} provides only the full path of the files. Then the file research is implemented with the following code.
 \begin{lstlisting}
 #browse all the *.fc.fits files in a directory and its subdirectories
 main_path = './Asiago_nightsky/'
@@ -82,7 +90,7 @@ for name,file in zip(names,file_ls):
 \end{lstlisting}
 The header is a Python dictionary from which I can extract the quantities that I will need as new variables.
 
-\paragraph{Wavelength data.} The first thing to extract is the wavelenght information in the following way.
+\paragraph{Wavelength data.} The first thing to extract is the wavelength information in the following way.
 \begin{lstlisting}
 	#extract wavelenght information from the header
 	NAXIS1, NAXIS2 = hdr['NAXIS1'], hdr['NAXIS2']
@@ -99,11 +107,18 @@ The header is a Python dictionary from which I can extract the quantities that I
 	LAMBDA_start_id = len(LAMBDA)-len(LAMBDA[ LAMBDA>LAMBDA_lim])
 	LAMBDA = LAMBDA[LAMBDA_start_id:]
 \end{lstlisting}
-In this way the array \texttt{LAMBDA} contain the wavelength associated to each column of the spectrum, assuming a linear calibration. In the case the original calibration is not linear, a warning message is printed.
+In this way the array \texttt{LAMBDA} contains the wavelength associated to each column of the spectrum, assuming a linear calibration. In the case the original calibration is not linear, a warning message is printed.
 
-I decided to limit the wavelenghts in the blue hand of the spectrum to the limit value \texttt{LAMBDA\_lim} which was set to \SI{3500}{\angstrom}. Below this treshold the singal tends to be too noisy and low quality, due to the strong correction in the flux calibration phase and the intrinsic low sensitivity of CCDs in the blue domain. Also \texttt{LAMBDA\_lim} is ment to be a parameter, that can eventually be changed to fit new data.
+I decided to limit the wavelengths in the blue hand of the spectrum to the limit value \texttt{LAMBDA\_lim} which was set to \SI{3500}{\angstrom}. Below this threshold the signal tends to be too noisy and low quality, due to the strong correction in the flux calibration phase and the intrinsic low sensitivity of CCDs in the blue domain. Also \texttt{LAMBDA\_lim} is meant to be a parameter that can eventually be changed to fit new data.
 
-\paragraph{Slit and scale data.} For my script I will also need information about the angular scale of the spectra. In particular I want to retrive the angular scale on the final spectrum (in arcsec/px) and the size of the slit on the detector (in px). Implementation is the following:
+In the figure \ref{fig:10_det} is show the bluest hand of the spectrum of the planetary nebula NGC2392 (also known as ``The Eskimo nebula''), taken on the 1 February 2006: the signal is extremely noisy due to the extreme calibration necessary at those wavelengths. Note also the presence of several cosmic rays (red circles) that provide further spurious signals to the spectrum.
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=.4\textwidth,angle=90]{./5_mywork/10_det}
+	\caption{Extreme blue/UV domain in the spectrum of the nebula NGC2392. The area in the rectangle is totally useless due to the noise. Cosmic rays have been highlighted too. \label{fig:10_det}}
+\end{figure}
+
+\paragraph{Slit and scale data.} For my script I will also need information about the angular scale of the spectra. In particular I want to retrieve the angular scale on the final spectrum (in arcsec/px) and the size of the slit on the detector (in px). Implementation is the following:
 \begin{lstlisting}	
 	year = hdr['DATE-OBS'][:4]
 	
@@ -127,17 +142,16 @@ I decided to limit the wavelenghts in the blue hand of the spectrum to the limit
 Note the \texttt{TELSCALE} and \texttt{CCDSCALE} entries in the file header are available only from 2009. For earlier files I had to set by hand these two variables; in this case a warning message is also displayed. As reported in the code, as stated in \nota{citare proprietà CCD prima del 2009} before 2009 the telescope scale was of \SI{10.70}{arcsec\per{mm}} while the scale on the detector was \SI{0.63}{arcsec\per{px}}.
 
 \subsection{Cosmic ray and noise removal}
-The next step in the sky extraction process is to remove the cosmic rays and the residual noise in the blue domain. These two sources of photons provides spurous signal that may interfere with the detection and removal of the astronomical signal from the background.
+The next step in the sky extraction process is to remove the cosmic rays and the residual noise in the blue domain. These two sources of photons provide spurious signals that may interfere with the detection and removal of the astronomical signal from the background. See for example the figure \ref{fig:10_det} at page \pageref{fig:10_det}.
 
 Implementing an automatic process of recognition and masking of the spurious signals from cosmic rays and photon noise is rather complex and requires quite advanced analysis tools. The steps I made are the following:
 \begin{enumerate}
-	\item I scan each column of the spectrum, i.e.\ for each fixed value of the wavelength. The average flux level of the column is computed as a reference of the brightness of the spectrum at the analyzed wavelenght.
-	\item In each column I look for sharp peaks in the flux due to the presence of cosmic rays or strong noise. The peaks are identifed with the function \texttt{find peaks} from the module \texttt{scipy.signal}. In particular I restricted only to peacks with a width below the vale of \texttt{cr\_width}$=\SI{2.5}{px}$ and a prominence\footnote{\nota{info prominence significato}} higher than \texttt{cr\_prominence}$=5$ times the average value of the column. These are good settings to filter only peaks of noise and cosmic rays, that are typically very sharp and much brighter than the astronomical signal.
-	\item I mask the pixels around the peaks. The number of pixel to mask is computed from the width of the peaks, which is provided by the function \texttt{peak\_widths} from the module \texttt{scipy.signal}. I used this function to compute the FWHM of each peak, since this was a more solid width estimator with respect to the full width, which may be biased due to the noise fluctuations around the peak. I assumed that the total width of the peak was $2\times\text{FWHM}$. To be sure all the cosmic rays traces or the noise 
-fluctuations were contained in the detected width, I conservadively decided to increase the masked interval of a further \texttt{cr\_pad}$=\SI{1}{px}$ on both directions along the columns.
+	\item I scan each column of the spectrum, i.e.\ for each fixed value of the wavelength. The average flux level of the column is computed as a reference of the brightness of the spectrum at the analyzed wavelength.
+	\item In each column I look for sharp peaks in the flux due to the presence of cosmic rays or strong noise. The peaks are identified with the function \texttt{find peaks} from the module \texttt{scipy.signal}. In particular I restricted only to peaks with a width below the value of \texttt{cr\_width}$=\SI{2.5}{px}$ and a prominence\footnote{\nota{info prominence significato}} higher than \texttt{cr\_prominence}$=5$ times the average value of the column. These are good settings to filter only peaks of noise and cosmic rays that are typically very sharp and much brighter than the astronomical signal.
+	\item I mask the pixels around the peaks. The number of pixels to mask is computed from the width of the peaks, which is provided by the function \texttt{peak\_widths} from the module \texttt{scipy.signal}. I used this function to compute the FWHM of each peak, since this was a more solid width estimator with respect to the full width, which may be biased due to the noise fluctuations around the peak. I assumed that the total width of the peak was $2\times\text{FWHM}$. To be sure all the cosmic rays traces or the noise fluctuations were contained in the detected width, I conservatively decided to increase the masked interval of a further \texttt{cr\_pad}$=\SI{1}{px}$ in both directions along the columns.
 	\item I remove all the columns where too many pixels have been masked, i.e.\ too noisy columns. The minimum fraction of saved pixels in a column must be higher than the value \texttt{data\_col\_frac}$=0.75$.	
 \end{enumerate}
-After the removal of sharp peaks and noisy columns I expect to have a clean frame where are contained only the spectra of the astronomical targets and the background sky. The procuedure described above is implemented by the following lines.
+After the removal of sharp peaks and noisy columns I expect to have a clean frame which contains only the spectra of the astronomical targets and the background sky. The procedure described above is implemented by the following lines.
 \begin{lstlisting}
 	######################
 	#bkg level estiamtion
@@ -179,6 +193,11 @@ After the removal of sharp peaks and noisy columns I expect to have a clean fram
 			data[:, cr_col] = 0.
 \end{lstlisting}
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%fine controllo ortografico
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \subsection{Sources identification}
 The main idea to find scientific target is to integrate the (cleaned) spectrum in the wavelenghts and obtain the integrated luminosity profile of telescope field through the slit. Astromical sources are spatially limited and thus appear as bright peaks over the flat homogeneus background. Unluckyly in some real spectra the continuum is not homogeneus but present some gradients, probably due to some calibration biases; consequently the background integrated luminosity profile may not be flat at all, complicating the detection of astrnomical signals. If $F(x)$ is the total luminosity profile, we can imagine to split the two components
 \begin{equation}
@@ -188,7 +207,9 @@ where $A$ is the signal due to the astronomical sources and $B$ the one from the
 
 The full implementation of the identification process follows the steps below:
 \begin{enumerate}
-	\item Integrate the spectrum along the wavelengths to retrieve the luminosity profile along the slit. Estimate the typical luminosity value of each profile as the median one. If $F(x,\lambda)$ is the flux in a pixel of the spectrum in the position $x$ along the slit and wavelenght $\lambda$, then the luminosity profile $F(x)$ is obtained as
+	\item Integrate the spectrum along the wavelengths to retrieve the luminosity profile along the slit. Estimate the typical luminosity value of each profile as the median one; median value is much less sensitive to peaks in the luminosity profile and for this reason is preferable with respect to other estimations such as the average.
+	
+	If $F(x,\lambda)$ is the flux in a pixel of the spectrum in the position $x$ along the slit and wavelenght $\lambda$, then the luminosity profile $F(x)$ is obtained as
 	\begin{equation}
 		F(x)=\int_{\lambda_{min}}^{\lambda_{max}}F(x,\lambda')\text{d}\lambda'
 	\end{equation}
@@ -196,7 +217,16 @@ The full implementation of the identification process follows the steps below:
 	\begin{equation}
 		\hat F = \underset{x}{\text{median}}\large\{ F(x) \large\}
 	\end{equation}
-	\item Estimate the general trend of the background $B$, i.e.\ regardless the presence of peaks of the astronomical targets. I used the function \texttt{flatten} from the \texttt{wotam} package (\nota{citare wotam}) to perform a bi-weighted detrending of the signal. I used a windowing of 50\% the total profile length and a fine-tuning parameter \texttt{cval}$=10$. Such large window can only partially smooth down the peaks signals. Called $\mathcal{S}_{w,c}$ the biweighted filter, with window $w$ and tuneing parameter $c$ then the smoothed luminosity profile is given by
+	\item Estimate the general trend of the background $B$, i.e.\ regardless the presence of peaks of the astronomical targets. I used the function \texttt{flatten} from the \texttt{wotam} package (\nota{citare wotam}) to perform a bi-weighted detrending of the signal. This technique consist on estimating the smoothened value of the signal in the position $x$ as the median value of the data centered in $x$ and a window of total span $w$. A more robust indicator is obtained when data are filtered such that points with a larger displacement to the median value are less relevant. Given the value of the residual $a$ of the data with respect to the median value, there can be several different types of relative weight functions; in the wotam package it is used the Tukey function which is expressed as
+	\begin{equation}
+		L(a) = \begin{cases}
+		\left[-\left(\frac{a}{c}\right)^2\right]^2\quad \text{if}\ | a| < c\\
+		0\qquad\qquad\quad\text{else}
+		\end{cases}
+	\end{equation}
+	where $c$ is a tuning parameter that specifies the steepness of the weight scale.
+	
+	I used a windowing of 50\% the total profile length and a fine-tuning parameter \texttt{cval}$=c=10$. Such large window can only partially smooth down the peaks signals. Called $\mathcal{S}_{w,c}$ the biweighted filter operator, with window $w$ and tuning parameter $c$ then the smoothed luminosity profile is given by
 	\begin{equation}
 		F'(x)= \mathcal{S}_{w,c}\large\{ F(x) \large\}
 	\end{equation}
@@ -215,10 +245,33 @@ The full implementation of the identification process follows the steps below:
 		B(x)\approx S_{W,c} \large\{ F''(x) \large\}
 	\end{equation}
 	where $W\ll w$ is the new windowing factor, while the value $c$ has been kept constant. Once estimated $B$ I can focus on the profile of the astronomical sources $A$ which can be isolated simply as $A=F-B$.
+	
+	In the figure \ref{fig:bkg_est} are plotted the various luminosity profiles used to retrieve the final background $B$ in my example frame (see above). In this case the background is quite contant along the slit and the signal from the sources stands out the background easily; even the preliminary filtered profile $F'$ would have been a good approximation of the background, without the necessity of further computation, which is instead necessary for frames with lower quality data.
+	\begin{figure}[h!]
+		\centering
+		\includegraphics[width=.85\textwidth]{./5_mywork/bkg_est}
+		\caption{The different luminosity profiles to estimate the background $B$ on my test frame. Thanks to the good quality of the data (uniform slit illumination, high signal-to-noise ratio) the identification of the sources is particulary easy.\label{fig:bkg_est}}
+	\end{figure}
+
 	\item Identify the peaks in the profile of the astronomical sources $A$ with the function \texttt{find\_peaks} (see above). I selected peaks higher than 5\% of the reference level $\hat F$ and broader than \texttt{cr\_width}; the first condition ensure not to include faint peaks due to background noise fluctuations, the second one, prevent from including sharp peaks produced by cosmic rays.
-	\item Estimate the width of the peaks with \texttt{peak\_widths} that provided the FWHM. Many astronomical sources such as galaxies or planetary nebulae present a bright core and faint extended wings. This means that the FWHM can underestimete the total widht of a peak if wings are very broad. In a conservative approach I decided to assume the peak width as $2\times$\texttt{width\_mult}$\times\text{FWHM}$ where \texttt{width\_mult}$=2.5$ is another tunable parameter of the script. With the resulting widhts I masked the regions centered around the peaks.
+	\item Estimate the width of the peaks with \texttt{peak\_widths} that provided the FWHM. Many astronomical sources such as galaxies or planetary nebulae present a bright core and faint extended wings. This means that the FWHM can underestimete the total widht of a peak if wings are very broad. In a conservative approach I decided to assume the peak width as $2\times$\texttt{width\_mult}$\times\text{FWHM}$ where \texttt{width\_mult}$=2$ is another tunable parameter of the script. With the resulting widhts I masked the regions centered around the peaks.
+	
+	In the figure \ref{fig:removed} are shown the areas associated with the astronomical sources that has been removed, in my example frame (red bands) and the final background signal (greed dots).
+	\begin{figure}[h!]
+		\centering
+		\includegraphics[width=.85\textwidth]{./5_mywork/removed}
+		\caption{The astronomical sources identified by the script in the test frame. The original profile (broken orange line) has been filtered to remove cosmic rays and noise, contrinuting to smooth out the profile into the cleaned one (blue solid line). Red areas on the cleaned profile are the regions occupied by the sources and are going to be masked. The remaining usable signal from the background is represented by the green dots, each one representing a row in the bidimensional spectrum. \label{fig:removed}}
+	\end{figure}
 \end{enumerate}
 The masked intervals in the luminosity profiles becomes masked rows, when back to the bidimensional spectrum, which should now have only counts from the sky backgorund.
+
+On the figure \ref{fig:clean_spec} is finally reported the background sky spectrum extracted from the example frame. The white areas have been masked due to the presence of astronomical sources or cosmic rays.
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\textwidth]{./5_mywork/clean_spec}
+	\caption{Final background spectrum extracted from the example frame.\label{fig:clean_spec}}
+\end{figure}
+
 
 The full code to implement source extraction is the following.
 \begin{lstlisting}
@@ -285,6 +338,10 @@ The full code to implement source extraction is the following.
 		if row == 0:
 			ma_data[i,:] = np.nan
 \end{lstlisting}
+
+
+
+
 
 \subsection{Sky spectrum export}
 Once masked all the contaminants, I can extract the sky spectrum and save it for further analysis. For each frame I create a new \texttt{.fits} file that contain the sky spectrum and the masked data from other sources. The header of the new file contain the same information of the original one, plus further further additional information about the time of creation and the value of the limited wavelenght \texttt{LAMBDA\_lim} (respectively ``\texttt{BKGEXTR}'' and ``\texttt{UVLIM}''). Each file is saved in the firectory of the original one and to its name is appended the \texttt{.bkg.} suffix.
