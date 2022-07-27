@@ -11,10 +11,10 @@ from scipy.optimize import curve_fit
 
 ######################
 #OPTIONS
-save_plots = False
-save_FITS = False
-plot_profile = False
-plot_spec = False
+save_plots = True
+save_FITS = True
+plot_profile = True
+plot_spec = True
 show_ima = False
 
 #PARAMS
@@ -24,12 +24,12 @@ width_mult = 2 # interval to exclude around a source, wrt center in FWHM units
 cr_width = 2.5 # cr trace spatial width
 cr_prominence = 5 #treshold height wrt average column level
 cr_pad = 1 # number of px to exclude around cr, in a fixed column
-LAMBDA_lim = 3500 #A, limit blue wavelength
+LAMBDA_lim = 4000 #A, limit blue wavelength
 ######################
 
 #browse all the *.fc.fits files in a directory and its subdirectories
 main_path = './Asiago_nightsky/2006/'
-#main_path = './'
+main_path = './'
 file_ls = glob.glob(main_path+'/**/*.fc.fits', recursive= True)
 names = [os.path.basename(x) for x in file_ls]
 

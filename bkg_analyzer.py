@@ -1,10 +1,15 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.signal import find_peaks, peak_widths, savgol_filter
+from scipy.signal import find_peaks, peak_widths
 from scipy.interpolate import UnivariateSpline, interp1d
+from scipy.special import wofz
+from scipy.optimize import curve_fit
+
+from astropy.convolution import convolve_models
 from astropy.io import fits
 from astropy import units as u
-from astropy.modeling import models
+from astropy.modeling import models,fitting
+from astropy.modeling.functional_models import Box1D
 from astropy.table import Table
 from datetime import datetime
 import glob
@@ -108,6 +113,7 @@ for name,file in zip(names,file_ls):
 
     #interplolate the continuum from the sampling intervals
     interp = interp1d(x, y,
+
                  kind = 'quadratic', fill_value="extrapolate")    
     final_cont = interp(LAMBDA)
     
@@ -133,7 +139,6 @@ for name,file in zip(names,file_ls):
     '''
     LINE FIT
     '''
-
     #LINE FIT
     u_flux = u.erg / (u.cm ** 2 * u.s * u.AA) #flux units
     A = u.AA #angstrom units
@@ -141,26 +146,72 @@ for name,file in zip(names,file_ls):
     EWs = []
 
     #model the line spectrum as sum of all the lines
+    '''
     model = models.Gaussian1D(amplitude=0.5*max(spec)*u_flux,
                                     mean=lines[0]*A,
                                     stddev=5.*A)
+    '''
+    '''
+    model = models.Voigt1D(x_0=lines[0], amplitude_L=0.1*max(spec),
+                          fwhm_L=2*DELTA, fwhm_G=2*DELTA)
+    w = Box1D(amplitude=1e15*hdr['SLIT'], width=hdr['SLIT'])
+    '''
+    model = models.Lorentz1D(amplitude=0.5*max(spec), x_0=lines[0], fwhm=10.)
     
     for line in lines[1:]:
-        model = model + models.Gaussian1D(amplitude=0.5*max(spec)*u_flux,
-                                          mean=line*A,
-                                          stddev=5.*A)
+        V = models.Lorentz1D(amplitude=0.5*max(spec),
+                             x_0=line, fwhm=10.)
+        model = model + V
 
         plt.axvline(x=line, lw=0.4, ls='--', c='k', alpha=0.2) if plot_fits else 0
-        
-        
-    line_fit = fit_lines(spectrum-final_cont, model)
-    y_fit = line_fit(LAMBDA*A)
+       
+    fit = fitting.LevMarLSQFitter()
+    y_data = spec-final_cont
+    line_fit = fit(model, LAMBDA, y_data, maxiter=1000)
+    y_fit = line_fit(LAMBDA)
+    '''
+    #########################
+    ###########################
 
-    plt.plot(LAMBDA, y_fit+final_cont*u_flux,
+    #line profile function
+    def line_profile(x, *par):
+        A,x0,alpha,gamma=list(par)
+        sigma = alpha / np.sqrt(2 * np.log(2))
+        
+        #functional form
+        V = A*np.real(wofz(((x-x0)+ 1j*gamma)/sigma/np.sqrt(2)))/sigma/np.sqrt(2*np.pi)
+        w = np.full(hdr['SLIT'],1/hdr['SLIT'])
+        return np.convolve(V,w, mode='same')
+
+        
+    def line_fit(x, *params):
+        print('pippo')
+        params=np.reshape(np.asarray(params), (int(len(params)/4),4))
+        
+        y = 0
+        j=0
+        for param in params:
+            #print(j) if j == 36 else 0
+            j+=1
+            y += line_profile(x, *param)
+        return y
+
+    par_list = []
+    for line in lines:
+        par_list.append([1e-10,line,.5,.5])
+    popt,pcov = curve_fit(line_profile, LAMBDA, spec-final_cont, p0=[1e-15,lines[0],10,10])
+    print(popt)
+    '''
+    
+
+    ###########################
+    ##########################
+
+    plt.plot(LAMBDA, y_fit+final_cont,
                 lw=0.4, ls = '-', c='C1') if plot_fits else 0
     
 
-    EW = np.sum(y_fit/(final_cont*u_flux))
+    EW = np.sum(y_fit/(final_cont))
     EWs.append(EW)
    
     # for groups of lines the same EW is given to all the components
